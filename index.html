@@ -338,7 +338,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">TinyCore 配置</a>
+          <a href="/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">TinyCoreLinux 配置</a>
         </h2>
 
         <div class="post-meta-container">
@@ -350,7 +350,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2022-08-12 08:30:21 / 修改时间：15:43:30" itemprop="dateCreated datePublished" datetime="2022-08-12T08:30:21+08:00">2022-08-12</time>
+      <time title="创建时间：2022-08-12 08:30:21 / 修改时间：16:27:37" itemprop="dateCreated datePublished" datetime="2022-08-12T08:30:21+08:00">2022-08-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -369,7 +369,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>789</span>
+      <span>819</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -387,26 +387,15 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
-<p>sudo tc-install.sh</p>
-<p>安装源: C</p>
-<p>安装位置：F</p>
-<p>核心安装位置：1 Whole Disk</p>
-<p>安装硬盘：1 sda</p>
-<p>安装bootloader：y</p>
-<p>分区格式：ext4</p>
-<p>Boot显示选项：直接回车</p>
-<p>销毁数据：y</p>
-<h1 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h1><h2 id="OpenSSH"><a href="#OpenSSH" class="headerlink" title="OpenSSH"></a>OpenSSH</h2><p>tce-load -wi openssh</p>
-<p>sudo cp &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config.orig &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config</p>
-<p>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start</p>
-<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p>&#x2F;opt&#x2F;.filetool.lst<br>opt<br>home<br>usr&#x2F;local&#x2F;etc&#x2F;ssh<br>etc&#x2F;passwd<br>etc&#x2F;shadow<br>opt&#x2F;eth0.sh</p>
-<p>&#x2F;opt&#x2F;bootlocal.sh<br>#!&#x2F;bin&#x2F;sh<br>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start<br>sudo &#x2F;opt&#x2F;eth0.sh &amp;</p>
-<p>cat &#x2F;opt&#x2F;eth0.sh</p>
-<p>sleep 10<br>sudo ifconfig eth0 172.19.240.5 netmask 255.255.240.0<br>sudo route add default gw 172.19.240.1 dev eth0<br>sudo echo nameserver 172.19.240.1 &gt;&gt; &#x2F;etc&#x2F;resolv.conf</p>
-<h1 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h1><p>tce-ab</p>
-<p>查找S</p>
-
+          <p>Ting Core Linux 是一个最精简的Linux操作系统。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 

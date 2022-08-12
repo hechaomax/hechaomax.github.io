@@ -54,9 +54,12 @@
       </tags>
   </entry>
   <entry>
-    <title>TinyCore 配置</title>
+    <title>TinyCoreLinux 配置</title>
     <url>/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
+    <content><![CDATA[<p>Ting Core Linux 是一个最精简的Linux操作系统。</p>
+<span id="more"></span>
+
+<h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
 <p>sudo tc-install.sh</p>
 <p>安装源: C</p>
 <p>安装位置：F</p>
