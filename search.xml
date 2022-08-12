@@ -91,6 +91,15 @@
     <content><![CDATA[<p>演示hexo文章中，标签使用案例</p>
 <span id="more"></span>
 
+<h1 id="Hexo-命令"><a href="#Hexo-命令" class="headerlink" title="Hexo 命令"></a>Hexo 命令</h1><ul>
+<li>hexo clean 清理生成页面</li>
+<li>hexo g 生成静态页面</li>
+<li>hexo s 启动本地服务（<a href="http://localhost:4000）">http://localhost:4000）</a></li>
+<li>hexo d 发布页面到github</li>
+</ul>
+<p>连续命令 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo clean &amp; hexo g &amp; hexo s</span><br></pre></td></tr></table></figure>
+
 <h1 id="插入PDF"><a href="#插入PDF" class="headerlink" title="插入PDF"></a>插入PDF</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% pdf /files/出师表.pdf %&#125;</span><br></pre></td></tr></table></figure>
 
 <div class="pdf-container" data-target="/files/出师表.pdf" data-height="500px"></div>]]></content>
