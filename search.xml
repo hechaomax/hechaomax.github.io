@@ -1,54 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>TinyCore 配置</title>
-    <url>/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
-<p>sudo tc-install.sh</p>
-<p>安装源: C</p>
-<p>安装位置：F</p>
-<p>核心安装位置：1 Whole Disk</p>
-<p>安装硬盘：1 sda</p>
-<p>安装bootloader：y</p>
-<p>分区格式：ext4</p>
-<p>Boot显示选项：直接回车</p>
-<p>销毁数据：y</p>
-<h1 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h1><h2 id="OpenSSH"><a href="#OpenSSH" class="headerlink" title="OpenSSH"></a>OpenSSH</h2><p>tce-load -wi openssh</p>
-<p>sudo cp &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config.orig &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config</p>
-<p>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start</p>
-<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p>&#x2F;opt&#x2F;.filetool.lst<br>opt<br>home<br>usr&#x2F;local&#x2F;etc&#x2F;ssh<br>etc&#x2F;passwd<br>etc&#x2F;shadow<br>opt&#x2F;eth0.sh</p>
-<p>&#x2F;opt&#x2F;bootlocal.sh<br>#!&#x2F;bin&#x2F;sh<br>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start<br>sudo &#x2F;opt&#x2F;eth0.sh &amp;</p>
-<p>cat &#x2F;opt&#x2F;eth0.sh</p>
-<p>sleep 10<br>sudo ifconfig eth0 172.19.240.5 netmask 255.255.240.0<br>sudo route add default gw 172.19.240.1 dev eth0<br>sudo echo nameserver 172.19.240.1 &gt;&gt; &#x2F;etc&#x2F;resolv.conf</p>
-<h1 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h1><p>tce-ab</p>
-<p>查找S</p>
-]]></content>
-      <categories>
-        <category>os</category>
-      </categories>
-      <tags>
-        <tag>tinycorelinux</tag>
-        <tag>linux</tag>
-        <tag>vm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>hexo 使用案例</title>
-    <url>/2022/08/12/hexo-%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B/</url>
-    <content><![CDATA[<p>演示hexo文章中，标签使用案例</p>
-<span id="more"></span>
-
-<h1 id="插入PDF"><a href="#插入PDF" class="headerlink" title="插入PDF"></a>插入PDF</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% pdf /files/出师表.pdf %&#125;</span><br></pre></td></tr></table></figure>
-
-<div class="pdf-container" data-target="/files/出师表.pdf" data-height="500px"></div>]]></content>
-      <categories>
-        <category>demo</category>
-      </categories>
-      <tags>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>OSI模型 - 七层模型</title>
     <url>/2022/08/11/OSI%E6%A8%A1%E5%9E%8B-%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B/</url>
     <content><![CDATA[<p>Open Systems Interconnection模型或OSI模型是用于以清晰且兼容的方式指定计算机网络功能的体系结构。 OSI提供具有标准通信和传输体系结构，层和协议的各种通信系统的互操作性。</p>
@@ -99,6 +51,54 @@
       </categories>
       <tags>
         <tag>OSI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TinyCore 配置</title>
+    <url>/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
+<p>sudo tc-install.sh</p>
+<p>安装源: C</p>
+<p>安装位置：F</p>
+<p>核心安装位置：1 Whole Disk</p>
+<p>安装硬盘：1 sda</p>
+<p>安装bootloader：y</p>
+<p>分区格式：ext4</p>
+<p>Boot显示选项：直接回车</p>
+<p>销毁数据：y</p>
+<h1 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h1><h2 id="OpenSSH"><a href="#OpenSSH" class="headerlink" title="OpenSSH"></a>OpenSSH</h2><p>tce-load -wi openssh</p>
+<p>sudo cp &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config.orig &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config</p>
+<p>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start</p>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p>&#x2F;opt&#x2F;.filetool.lst<br>opt<br>home<br>usr&#x2F;local&#x2F;etc&#x2F;ssh<br>etc&#x2F;passwd<br>etc&#x2F;shadow<br>opt&#x2F;eth0.sh</p>
+<p>&#x2F;opt&#x2F;bootlocal.sh<br>#!&#x2F;bin&#x2F;sh<br>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start<br>sudo &#x2F;opt&#x2F;eth0.sh &amp;</p>
+<p>cat &#x2F;opt&#x2F;eth0.sh</p>
+<p>sleep 10<br>sudo ifconfig eth0 172.19.240.5 netmask 255.255.240.0<br>sudo route add default gw 172.19.240.1 dev eth0<br>sudo echo nameserver 172.19.240.1 &gt;&gt; &#x2F;etc&#x2F;resolv.conf</p>
+<h1 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h1><p>tce-ab</p>
+<p>查找S</p>
+]]></content>
+      <categories>
+        <category>os</category>
+      </categories>
+      <tags>
+        <tag>tinycorelinux</tag>
+        <tag>linux</tag>
+        <tag>vm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hexo 使用案例</title>
+    <url>/2022/08/12/hexo-%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B/</url>
+    <content><![CDATA[<p>演示hexo文章中，标签使用案例</p>
+<span id="more"></span>
+
+<h1 id="插入PDF"><a href="#插入PDF" class="headerlink" title="插入PDF"></a>插入PDF</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% pdf /files/出师表.pdf %&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pdf-container" data-target="/files/出师表.pdf" data-height="500px"></div>]]></content>
+      <categories>
+        <category>demo</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
       </tags>
   </entry>
 </search>
