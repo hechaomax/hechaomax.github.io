@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>TinyCore 配置</title>
+    <url>/2022/08/12/TinyCore-%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="硬盘安装"><a href="#硬盘安装" class="headerlink" title="硬盘安装"></a>硬盘安装</h1><p>tce-load -wi tc-install</p>
+<p>sudo tc-install.sh</p>
+<p>安装源: C</p>
+<p>安装位置：F</p>
+<p>核心安装位置：1 Whole Disk</p>
+<p>安装硬盘：1 sda</p>
+<p>安装bootloader：y</p>
+<p>分区格式：ext4</p>
+<p>Boot显示选项：直接回车</p>
+<p>销毁数据：y</p>
+<h1 id="常用软件安装"><a href="#常用软件安装" class="headerlink" title="常用软件安装"></a>常用软件安装</h1><h2 id="OpenSSH"><a href="#OpenSSH" class="headerlink" title="OpenSSH"></a>OpenSSH</h2><p>tce-load -wi openssh</p>
+<p>sudo cp &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config.orig &#x2F;usr&#x2F;local&#x2F;etc&#x2F;ssh&#x2F;sshd_config</p>
+<p>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start</p>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p>&#x2F;opt&#x2F;.filetool.lst<br>opt<br>home<br>usr&#x2F;local&#x2F;etc&#x2F;ssh<br>etc&#x2F;passwd<br>etc&#x2F;shadow<br>opt&#x2F;eth0.sh</p>
+<p>&#x2F;opt&#x2F;bootlocal.sh<br>#!&#x2F;bin&#x2F;sh<br>sudo &#x2F;usr&#x2F;local&#x2F;etc&#x2F;init.d&#x2F;openssh start<br>sudo &#x2F;opt&#x2F;eth0.sh &amp;</p>
+<p>cat &#x2F;opt&#x2F;eth0.sh</p>
+<p>sleep 10<br>sudo ifconfig eth0 172.19.240.5 netmask 255.255.240.0<br>sudo route add default gw 172.19.240.1 dev eth0<br>sudo echo nameserver 172.19.240.1 &gt;&gt; &#x2F;etc&#x2F;resolv.conf</p>
+<h1 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h1><p>tce-ab</p>
+<p>查找S</p>
+]]></content>
+      <categories>
+        <category>os</category>
+      </categories>
+      <tags>
+        <tag>tinycorelinux</tag>
+        <tag>linux</tag>
+        <tag>vm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hexo 使用案例</title>
+    <url>/2022/08/12/hexo-%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B/</url>
+    <content><![CDATA[<p>演示hexo文章中，标签使用案例</p>
+<span id="more"></span>
+
+<h1 id="插入PDF"><a href="#插入PDF" class="headerlink" title="插入PDF"></a>插入PDF</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% pdf /files/出师表.pdf %&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pdf-container" data-target="/files/出师表.pdf" data-height="500px"></div>]]></content>
+      <categories>
+        <category>demo</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OSI模型 - 七层模型</title>
+    <url>/2022/08/11/OSI%E6%A8%A1%E5%9E%8B-%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<p>Open Systems Interconnection模型或OSI模型是用于以清晰且兼容的方式指定计算机网络功能的体系结构。 OSI提供具有标准通信和传输体系结构，层和协议的各种通信系统的互操作性。</p>
+<span id="more"></span>
+
+<h1 id="OSI层-OSI-Layers"><a href="#OSI层-OSI-Layers" class="headerlink" title="OSI层 (OSI Layers)"></a>OSI层 (OSI Layers)</h1><p>OSI模型仅是指提出多个逻辑层的模型，这些逻辑层定义了功能，特征和互操作性。 OSI模型由7层组成，每个层提供独特的网络服务和功能，以创建用于网络通信的完整模型。 OSI引用模型是自上而下的方法，其中传输从上到下开始。</p>
+<ul>
+<li>Layer 7 – Application Layer 应用层</li>
+<li>Layer 6 – Presentation Layer 表示层</li>
+<li>Layer 5 – Sessions Layer 会话层</li>
+<li>Layer 4 – Transport Layer 传输层</li>
+<li>Layer 3 – Network Layer 网络层</li>
+<li>Layer 2 – Data Link Layer 数据链路层</li>
+<li>Layer 1 – Physical Layer 物理层</li>
+</ul>
+<h1 id="主机层-Host-Layers"><a href="#主机层-Host-Layers" class="headerlink" title="主机层(Host Layers)"></a>主机层(Host Layers)</h1><p>从第7层到第4层称为Host Layers 。 应用程序层(第7层)，表示层(第6层)，会话层(第5层)，传输层(第4层)被称为主机层，因为主机或操作系统以及网络堆栈负责这些层。</p>
+<h1 id="媒体层-Media-Layers"><a href="#媒体层-Media-Layers" class="headerlink" title="媒体层(Media Layers)"></a>媒体层(Media Layers)</h1><p>从第3层到第1层的层称为Media Layers 。网络层(第3层)，数据链路层(第2层)，物理层(第1层)被称为媒体层，因为这些层是在网络接口卡和媒体上实现的并主要在交换机，路由器等网络设备上运行。</p>
+<h1 id="第七层：应用层-Layer-7-Application-Layer"><a href="#第七层：应用层-Layer-7-Application-Layer" class="headerlink" title="第七层：应用层 (Layer 7: Application Layer)"></a>第七层：应用层 (Layer 7: Application Layer)</h1><p>Application Layer是最接近最终用户的层。 应用程序层主要由用户正在使用的应用程序操作。 浏览器，Twitter客户端，Zoom，游戏等在OSI参考模型的应用程序层上运行。 应用层使用流行的协议，例如HTTP，HTTPS，NTP，SMB，VNC，RDP，这些协议主要由用户端应用程序运行。</p>
+<h1 id="第六层：表示层-Layer-6-Presentation-Layer"><a href="#第六层：表示层-Layer-6-Presentation-Layer" class="headerlink" title="第六层：表示层 (Layer 6: Presentation Layer)"></a>第六层：表示层 (Layer 6: Presentation Layer)</h1><p>Presentation Layer位于第6层。表示层主要用于为同一应用程序层协议在不同应用程序之间提供数据的不同表示形式。 该层主要用于ASCII，EBCDIC，序列化，压缩等编码。</p>
+<h1 id="第5层：会话层-Layer-5-Session-Layer"><a href="#第5层：会话层-Layer-5-Session-Layer" class="headerlink" title="第5层：会话层 (Layer 5: Session Layer)"></a>第5层：会话层 (Layer 5: Session Layer)</h1><p>Session Layer控制主机&#x2F;计算机之间的连接&#x2F;会话。 该层将通信管理为全双工，半双工，单工以及针对第4层协议(如TCP和UDP)的操作，如会话挂起，重启，终止，启动等。</p>
+<h1 id="第四层：传输层-Layer-4-Transport-Layer"><a href="#第四层：传输层-Layer-4-Transport-Layer" class="headerlink" title="第四层：传输层 (Layer 4: Transport Layer)"></a>第四层：传输层 (Layer 4: Transport Layer)</h1><p>Transport Layer负责使用TCP和UDP协议将数据传输到远程计算机&#x2F;主机。 传输层提供诸如流控制，分段，传输连接管理，重传，传输错误检测，传输错误恢复，超时管理，可靠传输等操作TCP和UDP是当今计算机网络中使用的两种流行的传输层协议。</p>
+<h1 id="第三层：网络层-Layer-3-Network-Layer"><a href="#第三层：网络层-Layer-3-Network-Layer" class="headerlink" title="第三层：网络层 (Layer 3: Network Layer)"></a>第三层：网络层 (Layer 3: Network Layer)</h1><p>Network Layer主要负责通过传输层将数据传输到目的地的远程计算机&#x2F;主机。 网络层使用地址来定义不同的网络和主机以及它们之间的路由。 网络包含一个或多个主机或节点，可以与位于不同网络中的其他主机&#x2F;节点进行通信。 网络层提供：</p>
+<ul>
+<li>Host Addressing 主机寻址</li>
+<li>Network Addressing 网络编址</li>
+<li>Data Transfer Between Hosts&#x2F;Nodes 主机&#x2F;节点之间的数据传输</li>
+<li>Routing 路由</li>
+<li>Hop by Hop Transmission 逐跳传输</li>
+<li>Network Segmentation 网络细分</li>
+</ul>
+<p>IP是35年来使用最广泛的网络层协议。 IP与TCP和UDP协议非常集成地使用，并且在当今的计算机网络中占主导地位</p>
+<h1 id="第2层：数据链路层-Layer-2-Data-Link-Layer"><a href="#第2层：数据链路层-Layer-2-Data-Link-Layer" class="headerlink" title="第2层：数据链路层 (Layer 2: Data Link Layer)"></a>第2层：数据链路层 (Layer 2: Data Link Layer)</h1><p>Data Link Layer用于在直接连接的同一网络中的节点之间传输数据。 数据链路层在同一网络中工作。 数据链路层提供：</p>
+<ul>
+<li>Node to Node datagram transmission 节点到节点数据报传输</li>
+<li>Data Flow Control 数据流控制</li>
+</ul>
+<p>Ethernet或Medium Access Control (MAC)协议是计算机网络中最知名和使用的协议。 以太网是使用IEEE 802.3标准定义的。 Wi-Fi是另一种流行的协议，主要用于笔记本电脑，平板电脑，智能手机，电视以无线方式连接到LAN设备。 Wi-Fi由IEEE 802.11标准定义。 Bluetooth和USB是计算机网络中使用的另一种流行的数据链路层协议。</p>
+<h1 id="第1层：物理层-Layer-1-Physical-Layer"><a href="#第1层：物理层-Layer-1-Physical-Layer" class="headerlink" title="第1层：物理层 (Layer 1: Physical Layer)"></a>第1层：物理层 (Layer 1: Physical Layer)</h1><p>Physical Layer为数据链路层提供了传输介质。 物理层通过不同类型的信号在其上传输数据报。 物理层提供：</p>
+<ul>
+<li>Encoding 编码方式</li>
+<li>Signalling 发信号</li>
+<li>Error Detection 错误检测</li>
+</ul>
+<p>物理层可以通过铜线，空气，USB电缆，光纤电缆运行。 物理层还使用单工，半双工和全双工信号传输模式。</p>
+]]></content>
+      <categories>
+        <category>network</category>
+      </categories>
+      <tags>
+        <tag>OSI</tag>
+      </tags>
+  </entry>
+</search>
