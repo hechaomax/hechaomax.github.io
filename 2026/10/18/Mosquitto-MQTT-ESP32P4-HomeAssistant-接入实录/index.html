@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hechao.vip","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 NanoPi R5C 上用 Docker 跑 Mosquitto 2.x，为 ESP32-P4 触摸面板与 Home Assistant 搭一条最小权限的 MQTT 通道：密码文件与 ACL、host 网络、mqtt_statestream 状态镜像、通用控制桥自动化，以及 ESPHome 端的订阅与线程坑。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录">
+<meta property="og:url" content="https://hechao.vip/2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-%E6%8E%A5%E5%85%A5%E5%AE%9E%E5%BD%95/">
+<meta property="og:site_name" content="卷~卷不动了">
+<meta property="og:description" content="在 NanoPi R5C 上用 Docker 跑 Mosquitto 2.x，为 ESP32-P4 触摸面板与 Home Assistant 搭一条最小权限的 MQTT 通道：密码文件与 ACL、host 网络、mqtt_statestream 状态镜像、通用控制桥自动化，以及 ESPHome 端的订阅与线程坑。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-18T07:45:00.000Z">
+<meta property="article:modified_time" content="2026-10-18T07:46:04.176Z">
+<meta property="article:author" content="hechaomax">
+<meta property="article:tag" content="ACL">
+<meta property="article:tag" content="Armbian">
+<meta property="article:tag" content="Debian 13">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="ESP32-P4">
+<meta property="article:tag" content="ESPHome">
+<meta property="article:tag" content="Home Assistant">
+<meta property="article:tag" content="MQTT">
+<meta property="article:tag" content="Mosquitto">
+<meta property="article:tag" content="NanoPi R5C">
+<meta property="article:tag" content="智能家居">
+<meta property="article:tag" content="物联网">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hechao.vip/2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-%E6%8E%A5%E5%85%A5%E5%AE%9E%E5%BD%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hechao.vip/2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-%E6%8E%A5%E5%85%A5%E5%AE%9E%E5%BD%95/","path":"2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-接入实录/","title":"Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录 | 卷~卷不动了</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="卷~卷不动了" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">卷~卷不动了</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人随心</p>
+      <img class="custom-logo-image" src="/images/blog-logo.png" alt="卷~卷不动了">
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%9B%AE%E6%A0%87%EF%BC%9A%E8%AE%A9%E9%9D%A2%E6%9D%BF%E5%92%8C-HA-%E8%AF%B4%E4%B8%8A%E8%AF%9D"><span class="nav-number">2.</span> <span class="nav-text">1. 目标：让面板和 HA 说上话</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%88%90%E7%8A%B6%E6%80%81"><span class="nav-number">2.1.</span> <span class="nav-text">完成状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%8B%93%E6%89%91%E4%B8%8E%E7%AB%AF%E5%8F%A3%E8%A7%84%E5%88%92"><span class="nav-number">3.</span> <span class="nav-text">2. 拓扑与端口规划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%83%A8%E7%BD%B2-Mosquitto"><span class="nav-number">4.</span> <span class="nav-text">3. 部署 Mosquitto</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%8B%89%E9%95%9C%E5%83%8F%EF%BC%9A%E5%85%88%E7%BB%95%E5%BC%80-Docker-Hub"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 拉镜像：先绕开 Docker Hub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E7%9B%AE%E5%BD%95%EF%BC%9A%E5%92%8C-HA-%E5%88%86%E5%BC%80"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 目录：和 HA 分开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-mosquitto-conf"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 mosquitto.conf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-ACL%EF%BC%9A%E8%AE%A9-P4-%E5%8F%AA%E8%83%BD%E7%9C%8B%EF%BC%8C%E4%B8%8D%E8%83%BD%E6%94%B9"><span class="nav-number">4.4.</span> <span class="nav-text">3.4 ACL：让 P4 只能看，不能改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E7%94%9F%E6%88%90%E8%B4%A6%E5%8F%B7"><span class="nav-number">4.5.</span> <span class="nav-text">3.5 生成账号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E5%8A%A0%E5%85%A5-compose"><span class="nav-number">4.6.</span> <span class="nav-text">3.6 加入 compose</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-%E5%90%AF%E5%8A%A8"><span class="nav-number">4.7.</span> <span class="nav-text">3.7 启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%9D%83%E9%99%90%E8%AE%BE%E8%AE%A1%EF%BC%9AACL-%E6%89%8D%E6%98%AF%E9%87%8D%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">4. 权限设计：ACL 才是重点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%9B%9B%E9%A1%B9%E5%AE%89%E5%85%A8%E9%AA%8C%E8%AF%81"><span class="nav-number">6.</span> <span class="nav-text">5. 四项安全验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%92%E9%94%99%E5%91%BD%E4%BB%A4"><span class="nav-number">6.1.</span> <span class="nav-text">常用排错命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Home-Assistant-%E4%BE%A7%E6%8E%A5%E5%85%A5"><span class="nav-number">7.</span> <span class="nav-text">6. Home Assistant 侧接入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E6%B7%BB%E5%8A%A0-MQTT-%E9%9B%86%E6%88%90"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 添加 MQTT 集成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E7%8A%B6%E6%80%81%E9%95%9C%E5%83%8F%EF%BC%88mqtt-statestream%EF%BC%89"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 状态镜像（mqtt_statestream）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E6%8E%A7%E5%88%B6%E6%A1%A5%E8%87%AA%E5%8A%A8%E5%8C%96"><span class="nav-number">7.3.</span> <span class="nav-text">6.3 控制桥自动化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E6%B2%A1%E6%9C%89-P4-%E4%B9%9F%E8%83%BD%E9%AA%8C%E6%94%B6"><span class="nav-number">7.4.</span> <span class="nav-text">6.4 没有 P4 也能验收</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-%E5%AE%9E%E6%B5%8B%E8%AE%B0%E5%BD%95"><span class="nav-number">7.5.</span> <span class="nav-text">6.5 实测记录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-6-%E5%85%B3%E4%BA%8E%E5%AE%9E%E4%BD%93%E6%9E%84%E6%88%90%E7%9A%84%E4%B8%80%E7%82%B9%E8%A7%82%E5%AF%9F"><span class="nav-number">7.6.</span> <span class="nav-text">6.6 关于实体构成的一点观察</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E4%B8%BB%E9%A2%98%E5%8D%8F%E8%AE%AE%EF%BC%9A%E4%B8%80%E5%A5%97%E4%B8%8D%E7%94%A8%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E6%A1%A5"><span class="nav-number">8.</span> <span class="nav-text">7. 主题协议：一套不用改代码的桥</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%91%BD%E4%BB%A4%EF%BC%88P4-%E2%86%92-HA%EF%BC%89"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 命令（P4 → HA）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E7%8A%B6%E6%80%81%EF%BC%88HA-%E2%86%92-P4%EF%BC%89"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 状态（HA → P4）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 命名空间</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-ESP32-P4%EF%BC%88ESPHome%EF%BC%89%E4%BE%A7"><span class="nav-number">9.</span> <span class="nav-text">8. ESP32-P4（ESPHome）侧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6"><span class="nav-number">9.1.</span> <span class="nav-text">8.1 前提条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E5%BC%95%E5%85%A5%E6%A1%A5%E5%8C%85"><span class="nav-number">9.2.</span> <span class="nav-text">8.2 引入桥包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-UI-%E7%BB%91%E5%AE%9A"><span class="nav-number">9.3.</span> <span class="nav-text">8.3 UI 绑定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-4-%E4%B8%A4%E4%B8%AA%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">9.4.</span> <span class="nav-text">8.4 两个实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%8E%92%E9%94%99%E9%80%9F%E6%9F%A5"><span class="nav-number">10.</span> <span class="nav-text">9. 排错速查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E5%AE%89%E5%85%A8%E4%B8%8E%E7%BB%B4%E6%8A%A4"><span class="nav-number">11.</span> <span class="nav-text">10. 安全与维护</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C"><span class="nav-number">11.1.</span> <span class="nav-text">边界</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%B8%B8"><span class="nav-number">11.2.</span> <span class="nav-text">日常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">12.</span> <span class="nav-text">11. 写在最后</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hechaomax"
+      src="/images/custom-logo.jpeg">
+  <p class="site-author-name" itemprop="name">hechaomax</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hechaomax" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hechaomax" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sir.hechao@163.com" title="E-Mail → mailto:sir.hechao@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://github.com/hechaomax/sxxablog" title="https:&#x2F;&#x2F;github.com&#x2F;hechaomax&#x2F;sxxablog" rel="noopener" target="_blank">博客源码</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hechao.vip/2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-%E6%8E%A5%E5%85%A5%E5%AE%9E%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/custom-logo.jpeg">
+      <meta itemprop="name" content="hechaomax">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="卷~卷不动了">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录 | 卷~卷不动了">
+      <meta itemprop="description" content="在 NanoPi R5C 上用 Docker 跑 Mosquitto 2.x，为 ESP32-P4 触摸面板与 Home Assistant 搭一条最小权限的 MQTT 通道：密码文件与 ACL、host 网络、mqtt_statestream 状态镜像、通用控制桥自动化，以及 ESPHome 端的订阅与线程坑。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-18 15:45:00 / 修改时间：15:46:04" itemprop="dateCreated datePublished" datetime="2026-10-18T15:45:00+08:00">2026-10-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%8A%98%E8%85%BE/" itemprop="url" rel="index"><span itemprop="name">硬件折腾</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%8A%98%E8%85%BE/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/" itemprop="url" rel="index"><span itemprop="name">智能家居</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>18 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">在 NanoPi R5C 上用 Docker 跑 Mosquitto 2.x，为 ESP32-P4 触摸面板与 Home Assistant 搭一条最小权限的 MQTT 通道：密码文件与 ACL、host 网络、mqtt_statestream 状态镜像、通用控制桥自动化，以及 ESPHome 端的订阅与线程坑。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文基于 2026-10-18 的一次真实接入整理，Broker、HA 集成与端到端控制均已在实机跑通。<br>环境：<strong>NanoPi R5C &#x2F; Armbian 13 &#x2F; Docker 29.9 &#x2F; Home Assistant 2026.10.2 (Container)</strong>，局域网 <code>192.168.*.30</code><br>成果：Mosquitto 2.x 常驻运行，匿名访问关闭，<code>ha</code> &#x2F; <code>p4</code> 双账号最小权限，78 条状态主题 retained，P4 发一条 <code>toggle</code> 到实体动作全程约 4 秒<br>说明：文中密码、访问令牌、设备 UID 均已替换为占位符，内网 IP 以 <code>192.168.*.*</code> 掩码表示，照抄前请换成自己的值</p>
+</blockquote>
+<span id="more"></span>
+
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#1-%E7%9B%AE%E6%A0%87%EF%BC%9A%E8%AE%A9%E9%9D%A2%E6%9D%BF%E5%92%8C-HA-%E8%AF%B4%E4%B8%8A%E8%AF%9D">1. 目标：让面板和 HA 说上话</a></li>
+<li><a href="#2-%E6%8B%93%E6%89%91%E4%B8%8E%E7%AB%AF%E5%8F%A3%E8%A7%84%E5%88%92">2. 拓扑与端口规划</a></li>
+<li><a href="#3-%E9%83%A8%E7%BD%B2-Mosquitto">3. 部署 Mosquitto</a></li>
+<li><a href="#4-%E6%9D%83%E9%99%90%E8%AE%BE%E8%AE%A1%EF%BC%9AACL-%E6%89%8D%E6%98%AF%E9%87%8D%E7%82%B9">4. 权限设计：ACL 才是重点</a></li>
+<li><a href="#5-%E5%9B%9B%E9%A1%B9%E5%AE%89%E5%85%A8%E9%AA%8C%E8%AF%81">5. 四项安全验证</a></li>
+<li><a href="#6-Home-Assistant-%E4%BE%A7%E6%8E%A5%E5%85%A5">6. Home Assistant 侧接入</a></li>
+<li><a href="#7-%E4%B8%BB%E9%A2%98%E5%8D%8F%E8%AE%AE%EF%BC%9A%E4%B8%80%E5%A5%97%E4%B8%8D%E7%94%A8%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E6%A1%A5">7. 主题协议：一套不用改代码的桥</a></li>
+<li><a href="#8-ESP32-P4%EF%BC%88ESPHome%EF%BC%89%E4%BE%A7">8. ESP32-P4（ESPHome）侧</a></li>
+<li><a href="#9-%E6%8E%92%E9%94%99%E9%80%9F%E6%9F%A5">9. 排错速查</a></li>
+<li><a href="#10-%E5%AE%89%E5%85%A8%E4%B8%8E%E7%BB%B4%E6%8A%A4">10. 安全与维护</a></li>
+<li><a href="#11-%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E">11. 写在最后</a></li>
+</ul>
+<hr>
+<h2 id="1-目标：让面板和-HA-说上话"><a href="#1-目标：让面板和-HA-说上话" class="headerlink" title="1. 目标：让面板和 HA 说上话"></a>1. 目标：让面板和 HA 说上话</h2><p>手上有一块 <strong>JC-ESP32P4-M3</strong> 触摸屏开发板，想把它当作家里的中控面板：按钮点一下能控制 HA 里的设备，屏幕上还能显示设备的当前状态。</p>
+<p>方案没有走 HA 的 REST API，也没有在 P4 上跑复杂的 HTTP 客户端，而是用最省事的 <strong>MQTT</strong>：局域网里跑一个 Mosquitto，HA 和 P4 各自用独立账号连上去，靠主题约定分工。</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>实现方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HA 与 P4 通讯</td>
+<td>局域网 Mosquitto Broker（1883），双方各一个账号</td>
+</tr>
+<tr>
+<td>P4 控制 HA 设备</td>
+<td>P4 发布 <code>p4/cmd/&lt;domain&gt;/&lt;object&gt;/&lt;service&gt;</code>，HA 自动化转发成服务调用</td>
+</tr>
+<tr>
+<td>P4 显示设备状态</td>
+<td>HA 的 <code>mqtt_statestream</code> 把状态镜像到 <code>ha/&lt;domain&gt;/&lt;object&gt;/state</code>（retain）</td>
+</tr>
+<tr>
+<td>不让 P4 越权</td>
+<td>ACL：<code>p4</code> 只能读 <code>ha/#</code>、读写 <code>p4/#</code></td>
+</tr>
+</tbody></table>
+<h3 id="完成状态"><a href="#完成状态" class="headerlink" title="完成状态"></a>完成状态</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mosquitto 2.x 容器</td>
+<td>✅ 已运行，随 Docker 自启</td>
+</tr>
+<tr>
+<td>匿名访问</td>
+<td>✅ 已禁用（实测被拒）</td>
+</tr>
+<tr>
+<td>账号 <code>ha</code> &#x2F; <code>p4</code> 与 ACL</td>
+<td>✅ 已生效（实测越权被断连）</td>
+</tr>
+<tr>
+<td>局域网 1883 可达</td>
+<td>✅ Windows 侧直连成功</td>
+</tr>
+<tr>
+<td>HA MQTT 集成</td>
+<td>✅ 已添加，状态 <code>loaded</code></td>
+</tr>
+<tr>
+<td><code>mqtt_statestream</code> 状态镜像</td>
+<td>✅ 78 条 retained（3 climate &#x2F; 2 light &#x2F; 73 switch）</td>
+</tr>
+<tr>
+<td>P4 → HA 控制桥</td>
+<td>✅ 实测：MQTT 发 toggle，实体 on→off→on</td>
+</tr>
+<tr>
+<td>P4 ESPHome 包与示例</td>
+<td>📄 已备好，待烧录</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>凭据文件（密码明文）放在仓库之外，例如 <code>D:\HA\mqtt-credentials.txt</code> 之类的本地文件，<strong>不要提交到 Git</strong>。本文示例里一律写成 <code>&lt;...&gt;</code> 占位符。</p>
+</blockquote>
+<hr>
+<h2 id="2-拓扑与端口规划"><a href="#2-拓扑与端口规划" class="headerlink" title="2. 拓扑与端口规划"></a>2. 拓扑与端口规划</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">                 ┌──────────────────────────────┐</span><br><span class="line">                 │  NanoPi R5C  192.168.*.30    │</span><br><span class="line">                 │                              │</span><br><span class="line">ESP32-P4  ───────┤  mosquitto :1883 (host 网络) │</span><br><span class="line">(ESPHome)        │      ▲                       │</span><br><span class="line">192.168.*.x      │      │ 127.0.0.1             │</span><br><span class="line">                 │  homeassistant :8123         │</span><br><span class="line">                 └──────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Broker 地址（P4 用）</td>
+<td><code>192.168.*.30:1883</code></td>
+</tr>
+<tr>
+<td>Broker 地址（HA 用）</td>
+<td><code>127.0.0.1:1883</code>（HA 是 host 网络）</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>未开启（P4 不需要）</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>未启用（仅内网，见第 10 节）</td>
+</tr>
+<tr>
+<td>配置文件</td>
+<td><code>/opt/mosquitto/config/</code></td>
+</tr>
+<tr>
+<td>数据 &#x2F; 日志</td>
+<td><code>/opt/mosquitto/data/</code>、<code>/opt/mosquitto/log/</code></td>
+</tr>
+</tbody></table>
+<p>一个常被问到的问题：<strong>为什么 HA 用 <code>127.0.0.1</code> 而不是局域网 IP？</strong> 因为容器用了 <code>network_mode: host</code>，HA 容器里的 <code>127.0.0.1</code> 就是宿主机的 <code>127.0.0.1</code>，流量根本不经过网卡，省掉一层无谓的回环开销，也避免网卡切换时连接抖动。</p>
+<hr>
+<h2 id="3-部署-Mosquitto"><a href="#3-部署-Mosquitto" class="headerlink" title="3. 部署 Mosquitto"></a>3. 部署 Mosquitto</h2><h3 id="3-1-拉镜像：先绕开-Docker-Hub"><a href="#3-1-拉镜像：先绕开-Docker-Hub" class="headerlink" title="3.1 拉镜像：先绕开 Docker Hub"></a>3.1 拉镜像：先绕开 Docker Hub</h3><p>这台机器上 <code>docker.io</code> 直连超时，和之前装 HA 时一模一样。惯用办法是走国内镜像站拉取，再改回官方标签：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.m.daocloud.io/library/eclipse-mosquitto:2</span><br><span class="line">docker tag  docker.m.daocloud.io/library/eclipse-mosquitto:2 eclipse-mosquitto:2</span><br><span class="line">docker rmi  docker.m.daocloud.io/library/eclipse-mosquitto:2</span><br></pre></td></tr></table></figure>
+
+<p>实测 <code>docker.m.daocloud.io</code>、<code>docker.1ms.run</code>、<code>dockerproxy.net</code>、<code>hub.rat.dev</code> 四个站都能用，镜像 ID <code>38c0da4f2ef8</code>，43.3 MB，体积比 HA 小得多。</p>
+<blockquote>
+<p><strong>改标签这步不能省。</strong> compose 里写的是 <code>eclipse-mosquitto:2</code>，不改标签的话，下次 <code>docker compose up</code> 还是会去找官方源。</p>
+</blockquote>
+<h3 id="3-2-目录：和-HA-分开"><a href="#3-2-目录：和-HA-分开" class="headerlink" title="3.2 目录：和 HA 分开"></a>3.2 目录：和 HA 分开</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /opt/mosquitto/&#123;config,data,<span class="built_in">log</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用绝对路径挂载，与 <code>/opt/homeassistant</code> 完全分开。好处很实际：备份 HA 的 <code>config</code> 时不会误带上 broker 的数据，两边升级、迁移也互不影响。</p>
+<h3 id="3-3-mosquitto-conf"><a href="#3-3-mosquitto-conf" class="headerlink" title="3.3 mosquitto.conf"></a>3.3 <code>mosquitto.conf</code></h3><p><code>/opt/mosquitto/config/mosquitto.conf</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">listener 1883 0.0.0.0</span><br><span class="line">protocol mqtt</span><br><span class="line"></span><br><span class="line">allow_anonymous false</span><br><span class="line">password_file /mosquitto/config/passwd</span><br><span class="line">acl_file /mosquitto/config/aclfile</span><br><span class="line"></span><br><span class="line">persistence true</span><br><span class="line">persistence_location /mosquitto/data/</span><br><span class="line">autosave_interval 300</span><br><span class="line"></span><br><span class="line">log_dest stdout</span><br><span class="line">log_type error</span><br><span class="line">log_type warning</span><br><span class="line">log_type notice</span><br><span class="line">connection_messages true</span><br><span class="line">log_timestamp true</span><br><span class="line">log_timestamp_format %Y-%m-%d %H:%M:%S</span><br><span class="line"></span><br><span class="line">max_keepalive 120</span><br><span class="line">max_connections -1</span><br></pre></td></tr></table></figure>
+
+<p>几个配置项的取舍：</p>
+<ul>
+<li><code>allow_anonymous false</code> <strong>必须</strong>配合 <code>password_file</code>，只写前者容器会直接起不来。</li>
+<li><code>log_dest stdout</code> 让日志走 <code>docker logs</code>，交给 <code>/etc/docker/daemon.json</code> 里已有的 10 MB × 3 轮转，<strong>不写 eMMC</strong>——这点对长期跑在 SD 卡 &#x2F; eMMC 上的小主机很重要。</li>
+<li><code>persistence true</code> 把 retained 消息落盘。P4 依赖的“当前状态”本质就是 retained 消息，broker 重启后 P4 一订阅就能拿到值，不用等实体下次变化。</li>
+<li><code>autosave_interval 300</code> 比默认的 1800 秒短，掉电最多丢 5 分钟的状态快照，对 eMMC 的写入压力也可接受。</li>
+<li><code>max_keepalive 120</code> 限制客户端心跳上限，防止某个客户端协商出超长 keepalive 导致 broker 长时间挂着死连接。</li>
+</ul>
+<h3 id="3-4-ACL：让-P4-只能看，不能改"><a href="#3-4-ACL：让-P4-只能看，不能改" class="headerlink" title="3.4 ACL：让 P4 只能看，不能改"></a>3.4 ACL：让 P4 只能看，不能改</h3><p><code>/opt/mosquitto/config/aclfile</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">user ha</span><br><span class="line">topic readwrite #</span><br><span class="line"></span><br><span class="line">user p4</span><br><span class="line">topic read ha/#</span><br><span class="line">topic readwrite p4/#</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ha</code>：MQTT 集成、设备发现、<code>mqtt_statestream</code>、控制桥都要用，索性给全量。</li>
+<li><code>p4</code>：<strong>只读</strong> HA 的状态镜像；只能写自己的 <code>p4/</code> 命名空间（命令、遥测、ESPHome 的 birth&#x2F;debug 主题）。</li>
+</ul>
+<p>这条规则的价值在“固件被改坏”的假设下才显现：即使 P4 上的程序出 bug、或者有人拿到了 P4 的账号，它也<strong>无法伪造 <code>ha/...</code> 状态</strong>去欺骗面板或 HA 的其它订阅者。权限边界画在 broker 上，比画在固件里可靠。</p>
+<h3 id="3-5-生成账号"><a href="#3-5-生成账号" class="headerlink" title="3.5 生成账号"></a>3.5 生成账号</h3><p>用镜像自带的 <code>mosquitto_passwd</code> 生成哈希，避免明文写进配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> --entrypoint mosquitto_passwd \</span><br><span class="line">  -v /opt/mosquitto/config:/mosquitto/config eclipse-mosquitto:2 \</span><br><span class="line">  -b -c /mosquitto/config/passwd ha <span class="string">&#x27;&lt;HA_PASSWORD&gt;&#x27;</span></span><br><span class="line"></span><br><span class="line">docker run --<span class="built_in">rm</span> --entrypoint mosquitto_passwd \</span><br><span class="line">  -v /opt/mosquitto/config:/mosquitto/config eclipse-mosquitto:2 \</span><br><span class="line">  -b /mosquitto/config/passwd p4 <span class="string">&#x27;&lt;P4_PASSWORD&gt;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">chown</span> 1883:1883 /opt/mosquitto/config/passwd /opt/mosquitto/data /opt/mosquitto/log</span><br><span class="line"><span class="built_in">chmod</span> 640 /opt/mosquitto/config/passwd</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>踩过的坑</strong>：<code>mosquitto_passwd -c</code> 生成的文件属主是 <code>root:root</code>、权限 <code>600</code>，而镜像以 uid <code>1883</code> 运行，容器会报 <code>Unable to open pwfile</code> 并退出。必须 <code>chown 1883:1883</code> 且给 <code>640</code>。第二次用 <code>-b</code>（不带 <code>-c</code>）追加账号，否则会把已有账号覆盖掉。</p>
+</blockquote>
+<h3 id="3-6-加入-compose"><a href="#3-6-加入-compose" class="headerlink" title="3.6 加入 compose"></a>3.6 加入 compose</h3><p>在 <code>/opt/homeassistant/compose.yaml</code> 末尾追加下面这段，原有的 <code>homeassistant</code> 段不动：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mosquitto:</span></span><br><span class="line">  <span class="attr">container_name:</span> <span class="string">mosquitto</span></span><br><span class="line">  <span class="attr">image:</span> <span class="string">eclipse-mosquitto:2</span></span><br><span class="line">  <span class="attr">restart:</span> <span class="string">unless-stopped</span></span><br><span class="line">  <span class="attr">network_mode:</span> <span class="string">host</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/opt/mosquitto/config:/mosquitto/config</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/opt/mosquitto/data:/mosquitto/data</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/opt/mosquitto/log:/mosquitto/log</span></span><br><span class="line">  <span class="attr">environment:</span></span><br><span class="line">    <span class="attr">TZ:</span> <span class="string">Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>为什么用 <code>network_mode: host</code></strong>：HA 已经是 host 网络，broker 也走 host，HA 里填 <code>127.0.0.1:1883</code> 即可；若改成端口映射，容器和宿主机之间多一层 NAT，排错时反而要多想一步“这个包到底从哪进来的”。内网单机服务，没必要引入这层复杂度。</p>
+<h3 id="3-7-启动"><a href="#3-7-启动" class="headerlink" title="3.7 启动"></a>3.7 启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line">docker compose config --quiet     <span class="comment"># 先校验 YAML 和挂载路径</span></span><br><span class="line">docker compose up -d mosquitto</span><br><span class="line">docker compose ps</span><br></pre></td></tr></table></figure>
+
+<p><code>config --quiet</code> 这步别省，它能在真正启动前抓出缩进错误和路径笔误。</p>
+<hr>
+<h2 id="4-权限设计：ACL-才是重点"><a href="#4-权限设计：ACL-才是重点" class="headerlink" title="4. 权限设计：ACL 才是重点"></a>4. 权限设计：ACL 才是重点</h2><p>回头单独说一下这块，因为它是整套方案里最容易被忽略、又最值钱的部分。</p>
+<p>很多教程给 P4 直接开 <code>topic readwrite #</code>，图省事，能跑通。但那样意味着：面板固件可以往 <code>homeassistant/...</code> 发发现消息，凭空注册一个假设备；也可以往 <code>ha/light/xxx/state</code> 写任意值，让面板显示“灯开着”而实际关着。</p>
+<p>本文的划分把主题空间切成三层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ha/...            只由 HA 写，P4 只读      ← 状态镜像（retain）</span><br><span class="line">p4/cmd/...        只由 P4 写，HA 只读      ← 控制命令</span><br><span class="line">p4/panel/...      P4 自己的 birth/debug    ← ESPHome 内部用</span><br></pre></td></tr></table></figure>
+
+<p>对应到 ACL 就是两行。如果面板最终只控制固定几台设备，还可以进一步收窄到具体主题（见第 10 节），把“读整个 <code>ha/#</code>”也砍掉。</p>
+<hr>
+<h2 id="5-四项安全验证"><a href="#5-四项安全验证" class="headerlink" title="5. 四项安全验证"></a>5. 四项安全验证</h2><p>配置写完不算数，得证明它真的拦得住。四个用例覆盖了认证和授权两面：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>用例</th>
+<th>命令要点</th>
+<th>实测结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>匿名连接</td>
+<td>不带账号 <code>mosquitto_pub</code></td>
+<td><code>Connection Refused: not authorised</code> ✅</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>ha</code> 收发</td>
+<td>订阅 <code>p4/test/#</code> 后发布 <code>{&quot;ok&quot;:1}</code></td>
+<td>收到 <code>{&quot;ok&quot;:1}</code> ✅</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>p4</code> 读状态</td>
+<td><code>ha</code> 发 <code>ha/light/demo/state=ON</code>，<code>p4</code> 订阅 <code>ha/#</code></td>
+<td>收到 <code>ON</code> ✅</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>p4</code> 越权写</td>
+<td><code>p4</code> 发布到 <code>ha/light/demo/state</code></td>
+<td>被断连（<code>sending DISCONNECT</code>）✅</td>
+</tr>
+</tbody></table>
+<p>第 4 条尤其值得看日志：Mosquitto 对 ACL 拒绝的发布不是静默丢弃，而是直接断开连接，日志里能看到 <code>not authorised</code> 和 <code>sending DISCONNECT</code>。这个行为对调试友好——P4 一直重连，基本就是账号密码错或 ACL 拒绝。</p>
+<p>监听与启动日志：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LISTEN 0 100 0.0.0.0:1883 users:((&quot;mosquitto&quot;,pid=74075,fd=5))</span><br><span class="line">2026-10-18 15:23:22: Info: running mosquitto as user: mosquitto.</span><br></pre></td></tr></table></figure>
+
+<p>Windows 侧直连也确认了防火墙和路由没问题：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$c</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TcpClient</span><br><span class="line"><span class="variable">$c</span>.Connect(<span class="string">&#x27;192.168.*.30&#x27;</span>,<span class="number">1883</span>); <span class="string">&quot;OK&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用排错命令"><a href="#常用排错命令" class="headerlink" title="常用排错命令"></a>常用排错命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker logs mosquitto --<span class="built_in">tail</span>=50</span><br><span class="line">docker <span class="built_in">exec</span> mosquitto mosquitto_sub -h 127.0.0.1 -u ha -P <span class="string">&#x27;&lt;HA_PASSWORD&gt;&#x27;</span> -t <span class="string">&#x27;#&#x27;</span> -v -W 3</span><br><span class="line">ss -tlnp | grep 1883</span><br></pre></td></tr></table></figure>
+
+<p>第二条是“上帝视角”：用 <code>ha</code> 账号订阅全量主题，能一眼看出谁在发什么。<code>-W 3</code> 表示 3 秒后自动退出，不会挂住终端。</p>
+<hr>
+<h2 id="6-Home-Assistant-侧接入"><a href="#6-Home-Assistant-侧接入" class="headerlink" title="6. Home Assistant 侧接入"></a>6. Home Assistant 侧接入</h2><h3 id="6-1-添加-MQTT-集成"><a href="#6-1-添加-MQTT-集成" class="headerlink" title="6.1 添加 MQTT 集成"></a>6.1 添加 MQTT 集成</h3><p>界面路径是：<strong>设置 → 设备与服务 → 添加集成 → MQTT</strong>，填 <code>127.0.0.1:1883</code>、用户名 <code>ha</code>、密码。</p>
+<p>本次为了可复现，用长期访问令牌直接调配置流 API 完成（等价于界面操作）：</p>
+<ol>
+<li><p><code>POST /api/config/config_entries/flow</code>，body <code>{&quot;handler&quot;:&quot;mqtt&quot;}</code> → 返回 <code>flow_id</code></p>
+</li>
+<li><p><code>POST /api/config/config_entries/flow/&lt;flow_id&gt;</code>，body：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;broker&quot;</span><span class="punctuation">:</span><span class="string">&quot;127.0.0.1&quot;</span><span class="punctuation">,</span><span class="attr">&quot;port&quot;</span><span class="punctuation">:</span><span class="number">1883</span><span class="punctuation">,</span><span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span><span class="string">&quot;5&quot;</span><span class="punctuation">,</span><span class="attr">&quot;username&quot;</span><span class="punctuation">:</span><span class="string">&quot;ha&quot;</span><span class="punctuation">,</span></span><br><span class="line"> <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span><span class="string">&quot;&lt;HA_PASSWORD&gt;&quot;</span><span class="punctuation">,</span></span><br><span class="line"> <span class="attr">&quot;other_settings&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;set_client_cert&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span><span class="attr">&quot;set_ca_cert&quot;</span><span class="punctuation">:</span><span class="string">&quot;off&quot;</span><span class="punctuation">,</span><span class="attr">&quot;transport&quot;</span><span class="punctuation">:</span><span class="string">&quot;tcp&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>返回 <code>type=create_entry</code>，集成立即 <code>loaded</code>。</p>
+</li>
+</ol>
+<blockquote>
+<p>令牌只用于这一次调用，没有落盘。用完要撤销的话：HA 左下角头像 → 安全 → 长期访问令牌 → 删除。<strong>长期访问令牌等同于密码</strong>，尤其不要贴进博客、Issue 或聊天记录。</p>
+</blockquote>
+<h3 id="6-2-状态镜像（mqtt-statestream）"><a href="#6-2-状态镜像（mqtt-statestream）" class="headerlink" title="6.2 状态镜像（mqtt_statestream）"></a>6.2 状态镜像（<code>mqtt_statestream</code>）</h3><p>把下面这段加到 <code>/opt/homeassistant/config/configuration.yaml</code> 顶层，然后重启 HA：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mqtt_statestream:</span></span><br><span class="line">  <span class="attr">base_topic:</span> <span class="string">ha</span></span><br><span class="line">  <span class="attr">publish_attributes:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">publish_timestamps:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">include:</span></span><br><span class="line">    <span class="attr">domains:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">light</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">switch</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">fan</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">cover</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">climate</span></span><br></pre></td></tr></table></figure>
+
+<p>发布规则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ha/&lt;domain&gt;/&lt;object_id&gt;/state        retain=true, qos=1</span><br><span class="line">例：ha/light/demo_light/state  →  on</span><br></pre></td></tr></table></figure>
+
+<p>设计取舍：<strong>只镜像 <code>light/switch/fan/cover/climate</code></strong>，不含 <code>sensor</code>。传感器高频刷新（温湿度、功率曲线）会把带宽和 broker 的 retained 存储迅速撑大，而面板真正需要的只是开关状态。要显示温度，把 <code>sensor</code> 加进 <code>domains</code> 即可，代价自己权衡。</p>
+<p><code>publish_attributes: false</code> 也很关键：设备属性（亮度、色温、HVAC 模式）动辄几十个字段，全量镜像后主题数量翻倍，而 P4 端通常只用得上 <code>state</code> 本身。</p>
+<h3 id="6-3-控制桥自动化"><a href="#6-3-控制桥自动化" class="headerlink" title="6.3 控制桥自动化"></a>6.3 控制桥自动化</h3><p>把下面两条追加进 <code>/opt/homeassistant/config/automations.yaml</code>，然后 <strong>开发者工具 → 操作 → <code>automation.reload</code></strong>：</p>
+<ol>
+<li><strong>P4 面板：MQTT 控制桥</strong> —— 订阅 <code>p4/cmd/+/+/+</code>，从主题里拆出 domain &#x2F; object_id &#x2F; service，调对应服务。</li>
+<li><strong>P4 面板：状态镜像初始化</strong> —— HA 启动 15 秒后，把所有常用实体状态重新 retain 一遍。</li>
+</ol>
+<p>第二条是为了补 <code>mqtt_statestream</code> 的一个缺口：它只在状态<strong>变化</strong>时发布，不主动发初始值。broker 重启、retained 数据清空、或者 HA 刚起来时，P4 订阅了也拿不到东西，屏幕只能显示 <code>--</code>。用一条启动后补发的自动化把这个洞堵上。</p>
+<p>第一条的模板部分大致是：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">trigger:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">platform:</span> <span class="string">mqtt</span></span><br><span class="line">    <span class="attr">topic:</span> <span class="string">p4/cmd/+/+/+</span></span><br><span class="line"><span class="attr">action:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">variables:</span></span><br><span class="line">      <span class="attr">domain:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; trigger.topic.split(&#x27;/&#x27;)[2] &#125;&#125;</span>&quot;</span></span><br><span class="line">      <span class="attr">object_id:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; trigger.topic.split(&#x27;/&#x27;)[3] &#125;&#125;</span>&quot;</span></span><br><span class="line">      <span class="attr">service:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; trigger.topic.split(&#x27;/&#x27;)[4] &#125;&#125;</span>&quot;</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">service:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; domain &#125;&#125;</span>.<span class="template-variable">&#123;&#123; service &#125;&#125;</span>&quot;</span></span><br><span class="line">    <span class="attr">target:</span></span><br><span class="line">      <span class="attr">entity_id:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; domain &#125;&#125;</span>.<span class="template-variable">&#123;&#123; object_id &#125;&#125;</span>&quot;</span></span><br><span class="line">    <span class="attr">data:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; trigger.payload | default(&#123;&#125;, true) | from_json &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这样 <code>service</code> 直接就是 HA 的服务名，<code>toggle / turn_on / turn_off / set_hvac_mode / open_cover</code> 全部通用，新增设备<strong>不需要改任何后端代码</strong>。</p>
+<h3 id="6-4-没有-P4-也能验收"><a href="#6-4-没有-P4-也能验收" class="headerlink" title="6.4 没有 P4 也能验收"></a>6.4 没有 P4 也能验收</h3><p>没有硬件不代表不能验证。用 broker 自带的客户端冒充面板就够了（本次就是这么验收的）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用 p4 账号发一条 toggle（实体换成你自己的）</span></span><br><span class="line">docker run --<span class="built_in">rm</span> --network host --entrypoint mosquitto_pub eclipse-mosquitto:2 \</span><br><span class="line">  -h 127.0.0.1 -u p4 -P <span class="string">&#x27;&lt;P4_PASSWORD&gt;&#x27;</span> \</span><br><span class="line">  -t p4/cmd/light/demo_light/toggle -m <span class="string">&#x27;&#123;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用 p4 账号看状态镜像（retain，订阅即得当前值）</span></span><br><span class="line">docker run --<span class="built_in">rm</span> --network host --entrypoint mosquitto_sub eclipse-mosquitto:2 \</span><br><span class="line">  -h 127.0.0.1 -u p4 -P <span class="string">&#x27;&lt;P4_PASSWORD&gt;&#x27;</span> -t <span class="string">&#x27;ha/+/+/state&#x27;</span> -v -W 4</span><br></pre></td></tr></table></figure>
+
+<p>用 <code>p4</code> 账号而不是 <code>ha</code> 来验收还有额外好处：顺带证明了 ACL 里“读 <code>ha/#</code>”这条规则真的放行了，写 <code>p4/cmd/...</code> 也真的允许了。</p>
+<h3 id="6-5-实测记录"><a href="#6-5-实测记录" class="headerlink" title="6.5 实测记录"></a>6.5 实测记录</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BEFORE : on</span><br><span class="line">PUBLISHED            &lt;- p4/cmd/light/demo_light/toggle  &#123;&#125;</span><br><span class="line">AFTER  : off         &lt;- 4 秒后 HA 实体已变</span><br><span class="line">RESTORED: on         &lt;- 再发一次 toggle 还原</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>控制桥自动化：<code>last_triggered = 15:34:06</code></li>
+<li>状态镜像初始化自动化：<code>last_triggered = 15:33:21</code>（启动补发）</li>
+<li>retained 主题共 78 条：<code>ha/climate/*</code> 3 条、<code>ha/light/*</code> 2 条、<code>ha/switch/*</code> 73 条</li>
+</ul>
+<p>4 秒的延迟主要来自“MQTT → 自动化触发 → 服务调用 → 设备响应 → 状态回流”这条链路，其中设备本身的响应占大头。局域网内这个量级对面板交互完全够用。</p>
+<h3 id="6-6-关于实体构成的一点观察"><a href="#6-6-关于实体构成的一点观察" class="headerlink" title="6.6 关于实体构成的一点观察"></a>6.6 关于实体构成的一点观察</h3><p>这台 HA 里 <code>light/switch/fan/cover/climate</code> 的实际构成挺有意思：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>数量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>climate.*</code></td>
+<td>3</td>
+<td>壁挂式空调（Midea）</td>
+</tr>
+<tr>
+<td><code>light.*</code></td>
+<td>8</td>
+<td>绝大多数是设备指示灯 &#x2F; 氛围灯，其中 5 个 <code>unknown/unavailable</code></td>
+</tr>
+<tr>
+<td><code>switch.*</code></td>
+<td>70+</td>
+<td>小米设备的子开关（摄像机 AI 检测、扫地机功能项等），不是物理开关</td>
+</tr>
+</tbody></table>
+<p>也就是说：<strong>列表里没有常规照明实体</strong>。如果你的目标是控制真正的灯或插座，先确认它们是否已经接入 HA，再谈面板按钮。P4 上的按钮直接填对应 <code>entity_id</code> 即可，桥不关心设备品牌——但前提是那个实体真实存在且可用。</p>
+<hr>
+<h2 id="7-主题协议：一套不用改代码的桥"><a href="#7-主题协议：一套不用改代码的桥" class="headerlink" title="7. 主题协议：一套不用改代码的桥"></a>7. 主题协议：一套不用改代码的桥</h2><h3 id="7-1-命令（P4-→-HA）"><a href="#7-1-命令（P4-→-HA）" class="headerlink" title="7.1 命令（P4 → HA）"></a>7.1 命令（P4 → HA）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p4/cmd/&lt;domain&gt;/&lt;object_id&gt;/&lt;service&gt;     负载：JSON 对象</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>主题</th>
+<th>负载</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>切换灯</td>
+<td><code>p4/cmd/light/keting/toggle</code></td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td>开灯并调亮度</td>
+<td><code>p4/cmd/light/keting/turn_on</code></td>
+<td><code>{&quot;brightness&quot;:180}</code></td>
+</tr>
+<tr>
+<td>关空调</td>
+<td><code>p4/cmd/climate/keting_ac/turn_off</code></td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td>开窗帘</td>
+<td><code>p4/cmd/cover/keting_curtain/open_cover</code></td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td>空调切制冷</td>
+<td><code>p4/cmd/climate/keting_ac/set_hvac_mode</code></td>
+<td><code>{&quot;hvac_mode&quot;:&quot;cool&quot;}</code></td>
+</tr>
+</tbody></table>
+<p>注意 <code>object_id</code> 是 <strong>entity_id 去掉 domain 前缀</strong>的部分：<code>light.keting</code> 对应 <code>object_id=keting</code>。用小写英文而不是中文，避免 URL &#x2F; 主题编码上的麻烦。</p>
+<h3 id="7-2-状态（HA-→-P4）"><a href="#7-2-状态（HA-→-P4）" class="headerlink" title="7.2 状态（HA → P4）"></a>7.2 状态（HA → P4）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ha/&lt;domain&gt;/&lt;object_id&gt;/state              retain=true（订阅即得当前值）</span><br></pre></td></tr></table></figure>
+
+<p>P4 只需订阅 <code>ha/+/+/state</code> 一个通配符主题，按 entity_id 分发到各个控件。</p>
+<h3 id="7-3-命名空间"><a href="#7-3-命名空间" class="headerlink" title="7.3 命名空间"></a>7.3 命名空间</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p4/panel/...     ESPHome 自身的 birth/debug 主题（topic_prefix: p4/panel）</span><br></pre></td></tr></table></figure>
+
+<p>把 ESPHome 的内部主题和业务命令分到不同子树，<code>p4/#</code> 授权时不会互相干扰，抓包时也一眼能分清是面板自检还是用户操作。</p>
+<hr>
+<h2 id="8-ESP32-P4（ESPHome）侧"><a href="#8-ESP32-P4（ESPHome）侧" class="headerlink" title="8. ESP32-P4（ESPHome）侧"></a>8. ESP32-P4（ESPHome）侧</h2><h3 id="8-1-前提条件"><a href="#8-1-前提条件" class="headerlink" title="8.1 前提条件"></a>8.1 前提条件</h3><ul>
+<li>ESPHome 里 P4 的写法是 <code>variant: ESP32P4</code> + <code>framework: esp-idf</code>，且需要较新的版本（示例工程用 <code>min_version: 2026.5.2</code>）。版本太旧会直接报 <code>esp_ldo</code> &#x2F; <code>esp32_hosted</code> 未知。</li>
+<li>P4 <strong>没有内置 WiFi</strong>：靠封装里的 ESP32-C6 通过 <code>esp32_hosted</code>（SDIO）提供网络。</li>
+<li>MIPI 屏需要 <code>esp_ldo</code> 给 DSI PHY 供电（常见 <code>channel: 3</code>、<code>2.5V</code>），再配 <code>display: platform: mipi_dsi</code>。</li>
+<li>这些板级配置沿用你现有工程即可，示例里只给占位注释。</li>
+</ul>
+<h3 id="8-2-引入桥包"><a href="#8-2-引入桥包" class="headerlink" title="8.2 引入桥包"></a>8.2 引入桥包</h3><p>把 <code>p4-ha-bridge.yaml</code> 放进 ESPHome 配置目录，<code>secrets.yaml</code> 加一行：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mqtt_p4_password:</span> <span class="string">&quot;&lt;P4_PASSWORD&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>面板 yaml 里：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">packages:</span></span><br><span class="line">  <span class="attr">p4_ha_bridge:</span> <span class="type">!include</span> <span class="string">p4-ha-bridge.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>包内已经包含：</p>
+<ul>
+<li><code>mqtt:</code> 客户端（<code>topic_prefix: p4/panel</code>，<code>discovery: false</code>）</li>
+<li><code>script.p4_send(domain, object_id, service, data)</code> —— 发任意命令</li>
+<li><code>script.p4_toggle(domain, object_id)</code> —— 只发 toggle</li>
+</ul>
+<p><code>discovery: false</code> 是刻意的：ESPHome 的 MQTT discovery 会把面板自己注册成 HA 设备，而这里面板是控制端，不需要被控制，关掉能少一堆实体。</p>
+<h3 id="8-3-UI-绑定"><a href="#8-3-UI-绑定" class="headerlink" title="8.3 UI 绑定"></a>8.3 UI 绑定</h3><p>按钮（每加一个设备复制一份，改 4 个值）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">button:</span></span><br><span class="line">    <span class="attr">x:</span> <span class="number">24</span></span><br><span class="line">    <span class="attr">y:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">width:</span> <span class="number">220</span></span><br><span class="line">    <span class="attr">height:</span> <span class="number">120</span></span><br><span class="line">    <span class="attr">widgets:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">label:</span> &#123; <span class="attr">text:</span> <span class="string">&quot;客厅灯&quot;</span>, <span class="attr">align:</span> <span class="string">CENTER</span> &#125;</span><br><span class="line">    <span class="attr">on_click:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">script.execute:</span></span><br><span class="line">          <span class="attr">id:</span> <span class="string">p4_send</span></span><br><span class="line">          <span class="attr">domain:</span> <span class="string">light</span></span><br><span class="line">          <span class="attr">object_id:</span> <span class="string">keting</span></span><br><span class="line">          <span class="attr">service:</span> <span class="string">toggle</span></span><br><span class="line">          <span class="attr">data:</span> <span class="string">&quot;&#123;&#125;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>状态标签 + 订阅。订阅<strong>只需一次</strong>，放在 <code>on_boot</code> 里：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">esphome:</span><br><span class="line">  on_boot:</span><br><span class="line">    priority: <span class="number">600</span></span><br><span class="line">    then:</span><br><span class="line">      - lambda: |-</span><br><span class="line">          <span class="built_in">id</span>(mqtt_bridge).<span class="built_in">subscribe</span>(<span class="string">&quot;ha/+/+/state&quot;</span>, [](<span class="type">const</span> std::string &amp;topic, <span class="type">const</span> std::string &amp;payload) &#123;</span><br><span class="line">            <span class="comment">// ha/light/keting/state -&gt; light/keting</span></span><br><span class="line">            std::string eid = topic.<span class="built_in">substr</span>(<span class="number">3</span>, topic.<span class="built_in">size</span>() - <span class="number">9</span>);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;c : eid) &#123; <span class="keyword">if</span> (c == <span class="string">&#x27;/&#x27;</span>) c = <span class="string">&#x27;.&#x27;</span>; &#125;</span><br><span class="line">            <span class="keyword">if</span> (eid == <span class="string">&quot;light.keting&quot;</span>) &#123;</span><br><span class="line">              <span class="built_in">lv_label_set_text</span>(<span class="built_in">id</span>(lbl_keting), payload.<span class="built_in">c_str</span>());</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>那段 <code>substr(3, size - 9)</code> 是把 <code>ha/</code> 前缀和 <code>/state</code> 后缀切掉，得到 <code>light/keting</code>，再把斜杠换成点，拼成 <code>light.keting</code> 这样的 entity_id。偏移量写死看着不优雅，但对固定格式的主题是最省 CPU 的写法。</p>
+<h3 id="8-4-两个实现细节"><a href="#8-4-两个实现细节" class="headerlink" title="8.4 两个实现细节"></a>8.4 两个实现细节</h3><p><strong>回调线程</strong>：ESP32 上 MQTT 回调运行在 esp-mqtt 的任务里，不是主循环。直接 <code>lv_label_set_text</code> 在实测中可用（ESPHome 自带组件也这么干），但如果面板复杂、出现偶发花屏或重启，改成“回调只写全局变量，<code>interval</code> 里刷新控件”即可。这是典型的“能用”和“稳”之间的取舍。</p>
+<p><strong>订阅只做一次</strong>：<code>MQTTClientComponent::subscribe()</code> <strong>不去重</strong>，每次调用都会新增一条订阅，订阅表只增不减。所以：</p>
+<ul>
+<li>不要放在 <code>on_connect</code> 里——每次重连都会多加一条，跑一天能堆出几十条重复订阅，回调被重复执行。</li>
+<li>放在 <code>on_boot</code>，或只在首次连接时执行一次。</li>
+<li>重连后的重订阅由 ESPHome 组件自己完成，不用你操心。</li>
+</ul>
+<hr>
+<h2 id="9-排错速查"><a href="#9-排错速查" class="headerlink" title="9. 排错速查"></a>9. 排错速查</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>容器起不来，日志 <code>Unable to open pwfile</code></td>
+<td>passwd 属主是 root</td>
+<td><code>chown 1883:1883</code> + <code>chmod 640</code></td>
+</tr>
+<tr>
+<td><code>docker pull eclipse-mosquitto:2</code> 超时</td>
+<td>Docker Hub 不可达</td>
+<td>用镜像站拉 + <code>docker tag</code></td>
+</tr>
+<tr>
+<td>HA 报 <code>Connection refused</code></td>
+<td>broker 没起 &#x2F; 端口不对</td>
+<td><code>ss -tlnp | grep 1883</code></td>
+</tr>
+<tr>
+<td>P4 一直重连</td>
+<td>账号密码错 &#x2F; ACL 拒绝发布</td>
+<td><code>docker logs mosquitto</code> 看 <code>not authorised</code></td>
+</tr>
+<tr>
+<td>P4 订阅 <code>ha/#</code> 收不到</td>
+<td><code>mqtt_statestream</code> 没配，或 domain 不在 include</td>
+<td>检查 <code>configuration.yaml</code>，重启 HA</td>
+</tr>
+<tr>
+<td>P4 上电后状态是 <code>--</code></td>
+<td>statestream 不发初始值</td>
+<td>等实体变化，或靠启动补发自动化</td>
+</tr>
+<tr>
+<td>控制没反应</td>
+<td>实体名 &#x2F; 服务名写错，或被 condition 挡掉</td>
+<td>开发者工具 → 模板里跑 <code>states(&#39;light.keting&#39;)</code></td>
+</tr>
+<tr>
+<td>ESPHome 编译报 <code>esp_ldo</code> &#x2F; <code>esp32_hosted</code> 未知</td>
+<td>ESPHome 版本太旧</td>
+<td>升级到 2026.5+</td>
+</tr>
+<tr>
+<td>P4 能连 broker 但 HA 收不到命令</td>
+<td>HA 里没加 MQTT 集成</td>
+<td>见 6.1</td>
+</tr>
+<tr>
+<td>面板回调重复执行</td>
+<td>订阅加在了 <code>on_connect</code></td>
+<td>改到 <code>on_boot</code>，只订阅一次</td>
+</tr>
+</tbody></table>
+<p>排错的顺序建议是：<strong>先 broker，再 HA，最后 P4</strong>。broker 用 <code>mosquitto_sub</code> 能收到就说明网络和认证没问题；HA 侧用开发者工具能手动调服务就说明集成和实体没问题；剩下的才轮到固件。</p>
+<hr>
+<h2 id="10-安全与维护"><a href="#10-安全与维护" class="headerlink" title="10. 安全与维护"></a>10. 安全与维护</h2><h3 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h3><ul>
+<li><p><strong>1883 不要映射到公网。</strong> 外网访问走 Tailscale &#x2F; WireGuard 之类的隧道，或者至少上 TLS（<code>listener 8883</code> + <code>cafile/certfile/keyfile</code>）。</p>
+</li>
+<li><p><code>p4</code> 账号权限已最小化。如果面板只控制固定几台设备，可以把 ACL 从“读整个 <code>ha/#</code>”收窄到具体主题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">user p4</span><br><span class="line">topic read ha/light/keting/state</span><br><span class="line">topic read ha/switch/chafang/state</span><br><span class="line">topic write p4/cmd/light/keting/#</span><br></pre></td></tr></table></figure>
+
+<p>这样即使 P4 完全失陷，攻击面也只有这两三个灯。</p>
+</li>
+</ul>
+<h3 id="日常"><a href="#日常" class="headerlink" title="日常"></a>日常</h3><ul>
+<li><p><strong>换密码</strong>：<code>mosquitto_passwd</code> 改完 <code>docker restart mosquitto</code>，再同步改 HA 集成和 ESPHome 的 <code>secrets.yaml</code>。三处必须一起改，漏一处就是“P4 一直重连”。</p>
+</li>
+<li><p><strong>备份</strong>：<code>/opt/mosquitto</code> 不在原有 HA 备份脚本范围内。retained 状态丢了会自动重建（靠启动补发），但配置建议单独备份：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar czf /var/backups/mosquitto-$(<span class="built_in">date</span> +%F).tar.gz /opt/mosquitto/config</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>升级</strong>：<code>docker compose pull mosquitto &amp;&amp; docker compose up -d mosquitto</code>。2.x 内部小版本可以直接升，跨大版本前先看 release notes 里 ACL 和配置项的变化。</p>
+</li>
+<li><p><strong>别把密码写进 compose 或 Git</strong>：凭据放本地文件或密码管理器，<code>secrets.yaml</code> 加进 <code>.gitignore</code>。</p>
+</li>
+</ul>
+<hr>
+<h2 id="11-写在最后"><a href="#11-写在最后" class="headerlink" title="11. 写在最后"></a>11. 写在最后</h2><p>整套东西配置下来不到一小时，真正花时间的是<strong>把权限边界想清楚</strong>，以及<strong>验证它确实拦得住</strong>。四条测试用例里，前三条是“能用”，第四条才是“安全”——很多人只测前三条。</p>
+<p>另一个感受是 <code>mqtt_statestream</code> + 通配符订阅这个组合的性价比很高：HA 侧几乎零代码（一段 YAML + 两条自动化），P4 侧也不用为每台设备写协议适配，<code>toggle / turn_on / turn_off</code> 这些服务名天然就是通用的。新增设备基本只是复制一个按钮、改四个值。</p>
+<p>接下来准备把 P4 真正烧进去，接上实体跑一轮完整交互。ESPHome 那段 <code>lv_label_set_text</code> 在回调里是否稳定，还得在真实面板上多看几天。</p>
+<p>唯一要提醒的是：<strong>文章里所有密码、ID、令牌都换成了占位符，你照抄的时候记得改。</strong> 尤其是长期访问令牌，它和密码等价，别顺手贴进任何一个公开的地方。</p>
+<hr>
+<p><em>变更记录：</em></p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15:20</td>
+<td>确认 1883 空闲、HA 无 MQTT 集成</td>
+</tr>
+<tr>
+<td>15:22</td>
+<td>拉取镜像（Hub 超时，改 daocloud 镜像站）</td>
+</tr>
+<tr>
+<td>15:23</td>
+<td>写入 <code>mosquitto.conf</code> &#x2F; <code>aclfile</code>，生成 <code>ha</code>、<code>p4</code> 账号</td>
+</tr>
+<tr>
+<td>15:24</td>
+<td>compose 增加 mosquitto 服务并启动</td>
+</tr>
+<tr>
+<td>15:25</td>
+<td>四项验证通过（匿名拒绝、收发、读状态、越权拒绝）</td>
+</tr>
+<tr>
+<td>15:30</td>
+<td>备好 HA 自动化 &#x2F; statestream &#x2F; ESPHome 包</td>
+</tr>
+<tr>
+<td>15:31</td>
+<td>用长期访问令牌添加 MQTT 集成（entry loaded）</td>
+</tr>
+<tr>
+<td>15:32</td>
+<td>停 HA，追加 <code>mqtt_statestream</code> 与 2 条自动化，重启</td>
+</tr>
+<tr>
+<td>15:34</td>
+<td>端到端验证：p4 发 toggle → 实体 on→off→on；78 条 retained 状态主题</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NanoPi-R5C/" rel="tag"># NanoPi R5C</a>
+              <a href="/tags/Armbian/" rel="tag"># Armbian</a>
+              <a href="/tags/Debian-13/" rel="tag"># Debian 13</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Mosquitto/" rel="tag"># Mosquitto</a>
+              <a href="/tags/MQTT/" rel="tag"># MQTT</a>
+              <a href="/tags/Home-Assistant/" rel="tag"># Home Assistant</a>
+              <a href="/tags/ESPHome/" rel="tag"># ESPHome</a>
+              <a href="/tags/ESP32-P4/" rel="tag"># ESP32-P4</a>
+              <a href="/tags/ACL/" rel="tag"># ACL</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/" rel="tag"># 智能家居</a>
+              <a href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/" rel="tag"># 物联网</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/" rel="prev" title="NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录">
+                  <i class="fa fa-angle-left"></i> NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2022 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">hechaomax</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">29k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:47</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

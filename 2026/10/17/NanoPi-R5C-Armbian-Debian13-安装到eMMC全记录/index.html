@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hechao.vip","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="RK3568 小主机装 Armbian Debian 13 (trixie) Minimal：TF 卡引导、armbian-install 写入 eMMC、UUID 校验与验收，实测 1 分 22 秒装完，含故障对照表与 Maskrom 救砖。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录">
+<meta property="og:url" content="https://hechao.vip/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/">
+<meta property="og:site_name" content="卷~卷不动了">
+<meta property="og:description" content="RK3568 小主机装 Armbian Debian 13 (trixie) Minimal：TF 卡引导、armbian-install 写入 eMMC、UUID 校验与验收，实测 1 分 22 秒装完，含故障对照表与 Maskrom 救砖。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-17T13:40:00.000Z">
+<meta property="article:modified_time" content="2026-10-18T08:57:04.856Z">
+<meta property="article:author" content="hechaomax">
+<meta property="article:tag" content="Armbian">
+<meta property="article:tag" content="Debian 13">
+<meta property="article:tag" content="NanoPi R5C">
+<meta property="article:tag" content="RK3568">
+<meta property="article:tag" content="eMMC">
+<meta property="article:tag" content="软路由">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hechao.vip/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hechao.vip/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/","path":"2026/10/17/NanoPi-R5C-Armbian-Debian13-安装到eMMC全记录/","title":"NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录 | 卷~卷不动了</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="卷~卷不动了" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">卷~卷不动了</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人随心</p>
+      <img class="custom-logo-image" src="/images/blog-logo.png" alt="卷~卷不动了">
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%8E%AF%E5%A2%83%E4%B8%8E%E7%9B%AE%E6%A0%87"><span class="nav-number">2.</span> <span class="nav-text">1. 环境与目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E7%A1%AC%E4%BB%B6%E4%BA%8B%E5%AE%9E%EF%BC%88%E5%86%B3%E5%AE%9A%E6%96%B9%E6%A1%88%E7%9A%84%E5%85%B3%E9%94%AE%E7%82%B9%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 硬件事实（决定方案的关键点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%88%86%E4%B8%A4%E6%AD%A5%EF%BC%88TF-%E2%86%92-eMMC%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 为什么分两步（TF → eMMC）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%87%86%E5%A4%87%E6%B8%85%E5%8D%95"><span class="nav-number">3.</span> <span class="nav-text">2. 准备清单</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%A1%AC%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 硬件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E8%BD%AF%E4%BB%B6%EF%BC%88Windows%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 软件（Windows）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%95%9C%E5%83%8F%E4%B8%8B%E8%BD%BD%E4%B8%8E%E6%A0%A1%E9%AA%8C"><span class="nav-number">4.</span> <span class="nav-text">3. 镜像下载与校验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E9%98%B6%E6%AE%B5%E4%B8%80-%E5%86%99%E5%85%A5-TF-%E5%8D%A1"><span class="nav-number">5.</span> <span class="nav-text">4. 阶段一 写入 TF 卡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E9%98%B6%E6%AE%B5%E4%BA%8C-%E9%A6%96%E6%AC%A1%E4%BB%8E-TF-%E5%8D%A1%E5%90%AF%E5%8A%A8"><span class="nav-number">6.</span> <span class="nav-text">5. 阶段二 首次从 TF 卡启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E9%98%B6%E6%AE%B5%E4%B8%89-%E6%89%BE%E5%88%B0-IP-%E5%B9%B6%E7%99%BB%E5%BD%95"><span class="nav-number">7.</span> <span class="nav-text">6. 阶段三 找到 IP 并登录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E6%89%BE-IP"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 找 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E9%A6%96%E6%AC%A1%E7%99%BB%E5%BD%95"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 首次登录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E9%98%B6%E6%AE%B5%E5%9B%9B-%E5%86%99%E5%85%A5%E5%89%8D%E9%A2%84%E6%A3%80"><span class="nav-number">8.</span> <span class="nav-text">7. 阶段四 写入前预检</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 基础信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E7%B2%BE%E7%A1%AE%E5%8C%BA%E5%88%86-eMMC-%E4%B8%8E-SD-%E5%8D%A1"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 精确区分 eMMC 与 SD 卡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E5%AE%98%E6%96%B9%E6%8E%A2%E6%B5%8B%E5%99%A8%EF%BC%88%E6%9C%80%E6%9D%83%E5%A8%81%EF%BC%8C%E8%87%AA%E5%8A%A8%E6%8E%92%E9%99%A4%E8%BF%90%E8%A1%8C%E4%B8%AD%E7%9A%84%E7%9B%98%EF%BC%89"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 官方探测器（最权威，自动排除运行中的盘）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-4-%E5%A6%82%E9%9C%80%E5%A4%87%E4%BB%BD-eMMC-%E5%86%85%E5%8E%9F%E5%8E%82%E6%95%B0%E6%8D%AE"><span class="nav-number">8.4.</span> <span class="nav-text">7.4 如需备份 eMMC 内原厂数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E9%98%B6%E6%AE%B5%E4%BA%94-%E6%89%A7%E8%A1%8C-armbian-install"><span class="nav-number">9.</span> <span class="nav-text">8. 阶段五 执行 armbian-install</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%EF%BC%88%E5%8F%AF%E7%9C%8B%E6%B8%85%E6%AF%8F%E4%B8%80%E5%B1%8F%EF%BC%89"><span class="nav-number">9.1.</span> <span class="nav-text">8.1 方式一：交互式（可看清每一屏）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4%EF%BC%88%E7%AD%89%E4%BB%B7%EF%BC%8C%E9%81%BF%E5%85%8D%E7%82%B9%E9%94%99%EF%BC%89"><span class="nav-number">9.2.</span> <span class="nav-text">8.2 方式二：一条命令（等价，避免点错）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E5%AE%9E%E9%99%85%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">9.3.</span> <span class="nav-text">8.3 安装过程实际做了什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-4-%E5%A4%B1%E8%B4%A5%E5%A4%84%E7%90%86"><span class="nav-number">9.4.</span> <span class="nav-text">8.4 失败处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E9%98%B6%E6%AE%B5%E5%85%AD-%E5%86%99%E5%85%A5%E5%90%8E-UUID-%E6%A0%A1%E9%AA%8C"><span class="nav-number">10.</span> <span class="nav-text">9. 阶段六 写入后 UUID 校验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E6%A3%80%E6%9F%A5%E5%88%86%E5%8C%BA%E7%BB%93%E6%9E%9C"><span class="nav-number">10.1.</span> <span class="nav-text">9.1 检查分区结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E6%8C%82%E8%BD%BD-eMMC-%E5%B9%B6%E6%A0%B8%E5%AF%B9%E4%B8%89%E5%A4%84-UUID"><span class="nav-number">10.2.</span> <span class="nav-text">9.2 挂载 eMMC 并核对三处 UUID</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E9%98%B6%E6%AE%B5%E4%B8%83-%E5%88%87%E6%8D%A2%E5%88%B0-eMMC-%E5%90%AF%E5%8A%A8"><span class="nav-number">11.</span> <span class="nav-text">10. 阶段七 切换到 eMMC 启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E9%98%B6%E6%AE%B5%E5%85%AB-%E9%AA%8C%E6%94%B6"><span class="nav-number">12.</span> <span class="nav-text">11. 阶段八 验收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E9%98%B6%E6%AE%B5%E4%B9%9D-%E6%94%B6%E5%B0%BE%E9%85%8D%E7%BD%AE"><span class="nav-number">13.</span> <span class="nav-text">12. 阶段九 收尾配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-1-%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E4%B8%8E%E6%97%B6%E5%8C%BA"><span class="nav-number">13.1.</span> <span class="nav-text">12.1 系统更新与时区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-2-%E7%BD%91%E5%8F%A3%E9%87%8D%E5%91%BD%E5%90%8D%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%8C%E8%BD%AF%E8%B7%AF%E7%94%B1%E5%BB%BA%E8%AE%AE%EF%BC%89"><span class="nav-number">13.2.</span> <span class="nav-text">12.2 网口重命名（可选，软路由建议）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-3-%E5%9B%BA%E5%AE%9A-IP"><span class="nav-number">13.3.</span> <span class="nav-text">12.3 固定 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-4-iperf3-%E6%98%AF%E5%90%A6%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%EF%BC%88armbian-config-%E5%AF%B9%E8%AF%9D%E6%A1%86%EF%BC%89"><span class="nav-number">13.4.</span> <span class="nav-text">12.4 iperf3 是否开机自启（armbian-config 对话框）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-5-eMMC-%E5%AF%BF%E5%91%BD%E4%BC%98%E5%8C%96"><span class="nav-number">13.5.</span> <span class="nav-text">12.5 eMMC 寿命优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-6-%E4%BF%9D%E7%95%99-TF-%E5%8D%A1"><span class="nav-number">13.6.</span> <span class="nav-text">12.6 保留 TF 卡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E6%95%85%E9%9A%9C%E5%AF%B9%E7%85%A7%E8%A1%A8"><span class="nav-number">14.</span> <span class="nav-text">13. 故障对照表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-%E6%95%91%E7%A0%96%E6%B5%81%E7%A8%8B-Maskrom"><span class="nav-number">15.</span> <span class="nav-text">14. 救砖流程 Maskrom</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-%E9%99%84%E5%BD%95-A-%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">16.</span> <span class="nav-text">15. 附录 A 命令速查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-%E9%99%84%E5%BD%95-B-%E6%9C%AC%E6%AC%A1%E5%AE%9E%E6%B5%8B%E6%95%B0%E6%8D%AE"><span class="nav-number">17.</span> <span class="nav-text">16. 附录 B 本次实测数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">18.</span> <span class="nav-text">17. 参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hechaomax"
+      src="/images/custom-logo.jpeg">
+  <p class="site-author-name" itemprop="name">hechaomax</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hechaomax" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hechaomax" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sir.hechao@163.com" title="E-Mail → mailto:sir.hechao@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://github.com/hechaomax/sxxablog" title="https:&#x2F;&#x2F;github.com&#x2F;hechaomax&#x2F;sxxablog" rel="noopener" target="_blank">博客源码</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hechao.vip/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/custom-logo.jpeg">
+      <meta itemprop="name" content="hechaomax">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="卷~卷不动了">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录 | 卷~卷不动了">
+      <meta itemprop="description" content="RK3568 小主机装 Armbian Debian 13 (trixie) Minimal：TF 卡引导、armbian-install 写入 eMMC、UUID 校验与验收，实测 1 分 22 秒装完，含故障对照表与 Maskrom 救砖。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-17 21:40:00" itemprop="dateCreated datePublished" datetime="2026-10-17T21:40:00+08:00">2026-10-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-18 16:57:04" itemprop="dateModified" datetime="2026-10-18T16:57:04+08:00">2026-10-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%8A%98%E8%85%BE/" itemprop="url" rel="index"><span itemprop="name">硬件折腾</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">RK3568 小主机装 Armbian Debian 13 (trixie) Minimal：TF 卡引导、armbian-install 写入 eMMC、UUID 校验与验收，实测 1 分 22 秒装完，含故障对照表与 Maskrom 救砖。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>目标板：<strong>FriendlyElec NanoPi R5C</strong>（RK3568B2 &#x2F; 4GB LPDDR4X &#x2F; 32GB eMMC &#x2F; 双 2.5G 网口 &#x2F; M.2 Key E）<br>镜像：<strong>Armbian Debian 13 (trixie) Minimal (CLI)</strong>，内核 <code>6.18.56-current-rockchip64</code><br>方案：<strong>TF 卡启动 → <code>armbian-install</code> 写入 eMMC → 拔卡从 eMMC 启动</strong><br>实际耗时：写卡约 4 分钟，首次启动约 1.5 分钟，写入 eMMC <strong>1 分 22 秒</strong>，全程约 30 分钟</p>
+</blockquote>
+<span id="more"></span>
+
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#1-%E7%8E%AF%E5%A2%83%E4%B8%8E%E7%9B%AE%E6%A0%87">1. 环境与目标</a></li>
+<li><a href="#2-%E5%87%86%E5%A4%87%E6%B8%85%E5%8D%95">2. 准备清单</a></li>
+<li><a href="#3-%E9%95%9C%E5%83%8F%E4%B8%8B%E8%BD%BD%E4%B8%8E%E6%A0%A1%E9%AA%8C">3. 镜像下载与校验</a></li>
+<li><a href="#4-%E9%98%B6%E6%AE%B5%E4%B8%80-%E5%86%99%E5%85%A5-tf-%E5%8D%A1">4. 阶段一 写入 TF 卡</a></li>
+<li><a href="#5-%E9%98%B6%E6%AE%B5%E4%BA%8C-%E9%A6%96%E6%AC%A1%E4%BB%8E-tf-%E5%8D%A1%E5%90%AF%E5%8A%A8">5. 阶段二 首次从 TF 卡启动</a></li>
+<li><a href="#6-%E9%98%B6%E6%AE%B5%E4%B8%89-%E6%89%BE%E5%88%B0-ip-%E5%B9%B6%E7%99%BB%E5%BD%95">6. 阶段三 找到 IP 并登录</a></li>
+<li><a href="#7-%E9%98%B6%E6%AE%B5%E5%9B%9B-%E5%86%99%E5%85%A5%E5%89%8D%E9%A2%84%E6%A3%80">7. 阶段四 写入前预检</a></li>
+<li><a href="#8-%E9%98%B6%E6%AE%B5%E4%BA%94-%E6%89%A7%E8%A1%8C-armbian-install">8. 阶段五 执行 armbian-install</a></li>
+<li><a href="#9-%E9%98%B6%E6%AE%B5%E5%85%AD-%E5%86%99%E5%85%A5%E5%90%8E-uuid-%E6%A0%A1%E9%AA%8C">9. 阶段六 写入后 UUID 校验</a></li>
+<li><a href="#10-%E9%98%B6%E6%AE%B5%E4%B8%83-%E5%88%87%E6%8D%A2%E5%88%B0-emmc-%E5%90%AF%E5%8A%A8">10. 阶段七 切换到 eMMC 启动</a></li>
+<li><a href="#11-%E9%98%B6%E6%AE%B5%E5%85%AB-%E9%AA%8C%E6%94%B6">11. 阶段八 验收</a></li>
+<li><a href="#12-%E9%98%B6%E6%AE%B5%E4%B9%9D-%E6%94%B6%E5%B0%BE%E9%85%8D%E7%BD%AE">12. 阶段九 收尾配置</a></li>
+<li><a href="#13-%E6%95%85%E9%9A%9C%E5%AF%B9%E7%85%A7%E8%A1%A8">13. 故障对照表</a></li>
+<li><a href="#14-%E6%95%91%E7%A0%96%E6%B5%81%E7%A8%8B-maskrom">14. 救砖流程 Maskrom</a></li>
+<li><a href="#15-%E9%99%84%E5%BD%95-a-%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5">15. 附录 A 命令速查</a></li>
+<li><a href="#16-%E9%99%84%E5%BD%95-b-%E6%9C%AC%E6%AC%A1%E5%AE%9E%E6%B5%8B%E6%95%B0%E6%8D%AE">16. 附录 B 本次实测数据</a></li>
+<li><a href="#17-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">17. 参考链接</a></li>
+</ul>
+<hr>
+<h2 id="1-环境与目标"><a href="#1-环境与目标" class="headerlink" title="1. 环境与目标"></a>1. 环境与目标</h2><h3 id="1-1-硬件事实（决定方案的关键点）"><a href="#1-1-硬件事实（决定方案的关键点）" class="headerlink" title="1.1 硬件事实（决定方案的关键点）"></a>1.1 硬件事实（决定方案的关键点）</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>规格</th>
+<th>对安装的影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SoC</td>
+<td>Rockchip RK3568B2，4×Cortex-A55</td>
+<td>主线内核支持良好</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>4GB LPDDR4X</td>
+<td>—</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>32GB eMMC + microSD</td>
+<td>引导只能放 eMMC 或 SD</td>
+</tr>
+<tr>
+<td>网口</td>
+<td>2×2.5GbE（PCIe 挂载）</td>
+<td>接口名叫 <code>enP1p17s0</code> &#x2F; <code>enP2p33s0</code>（非 lan1&#x2F;wan1）</td>
+</tr>
+<tr>
+<td>M.2</td>
+<td><strong>Key E</strong>，仅 PCIe 2.1 ×1 + USB 2.0</td>
+<td><strong>只能插 WiFi&#x2F;BT 模块，不能插 NVMe SSD</strong></td>
+</tr>
+<tr>
+<td>启动限制</td>
+<td>BootROM 不能从 USB &#x2F; M.2 引导</td>
+<td>引导必须落在 eMMC 或 TF 卡</td>
+</tr>
+<tr>
+<td>电源</td>
+<td>USB-C 5V 输入，建议 ≥2A</td>
+<td>劣质电源是最大玄学故障源</td>
+</tr>
+<tr>
+<td>调试口</td>
+<td>3Pin 2.54mm，<strong>1500000 8N1</strong></td>
+<td>不是常见的 115200</td>
+</tr>
+<tr>
+<td>按键</td>
+<td>MASK（eMMC 刷机）+ User</td>
+<td>MASK 用于进 Maskrom</td>
+</tr>
+</tbody></table>
+<h3 id="1-2-为什么分两步（TF-→-eMMC）"><a href="#1-2-为什么分两步（TF-→-eMMC）" class="headerlink" title="1.2 为什么分两步（TF → eMMC）"></a>1.2 为什么分两步（TF → eMMC）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">TF 卡（临时引导）         eMMC（最终归宿）</span><br><span class="line">┌──────────────┐         ┌──────────────────┐</span><br><span class="line">│ idbloader    │         │ idbloader        │</span><br><span class="line">│ u-boot.itb   │  ────►  │ u-boot.itb       │</span><br><span class="line">│ /boot        │ rsync   │ /boot            │</span><br><span class="line">│ / (rootfs)   │         │ / (rootfs, 29G)  │</span><br><span class="line">└──────────────┘         └──────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>先让系统从 TF 卡跑起来，再用 <code>armbian-install</code> 把”引导 + 系统”整体搬到 eMMC，最后拔卡。这样全程可回退，TF 卡天然成为救援盘。</p>
+<hr>
+<h2 id="2-准备清单"><a href="#2-准备清单" class="headerlink" title="2. 准备清单"></a>2. 准备清单</h2><h3 id="2-1-硬件"><a href="#2-1-硬件" class="headerlink" title="2.1 硬件"></a>2.1 硬件</h3><ul>
+<li><input checked="" disabled="" type="checkbox"> NanoPi R5C 主板（含 CNC 外壳）</li>
+<li><input checked="" disabled="" type="checkbox"> USB-C 5V&#x2F;≥2A 电源（<strong>必须能稳定输出 5V</strong>，避免 PD 诱骗不出电的快充头）</li>
+<li><input checked="" disabled="" type="checkbox"> microSD 卡 8–32GB，Class10 &#x2F; A1 以上，正品</li>
+<li><input checked="" disabled="" type="checkbox"> USB 读卡器</li>
+<li><input checked="" disabled="" type="checkbox"> 网线 ×1~2</li>
+<li><input checked="" disabled="" type="checkbox"> 电脑（Windows）</li>
+<li><input disabled="" type="checkbox"> USB-A 公对公<strong>数据</strong>线（仅救砖用，很多 A-A 线只有电源）</li>
+<li><input disabled="" type="checkbox"> USB-TTL 串口线 3.3V（可选，强烈建议；波特率 1500000）</li>
+<li><input disabled="" type="checkbox"> HDMI 线 + 显示器（可选）</li>
+</ul>
+<h3 id="2-2-软件（Windows）"><a href="#2-2-软件（Windows）" class="headerlink" title="2.2 软件（Windows）"></a>2.2 软件（Windows）</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://imager.armbian.com/">Armbian Imager</a></td>
+<td>下载 + 校验 + 写卡一体</td>
+<td><strong>推荐</strong>，自动核对 SHA256</td>
+</tr>
+<tr>
+<td>balenaEtcher</td>
+<td>写卡</td>
+<td>可直接吃 <code>.img.xz</code></td>
+</tr>
+<tr>
+<td>Rufus</td>
+<td>写卡</td>
+<td>必须选 <strong>DD 镜像模式</strong></td>
+</tr>
+<tr>
+<td>7-Zip</td>
+<td>手动解压</td>
+<td>不建议解压后再写，易损坏</td>
+</tr>
+<tr>
+<td>RKDevTool + DriverAssistant</td>
+<td>救砖 &#x2F; Maskrom</td>
+<td>从 FriendlyElec 网盘或 Radxa 文档获取</td>
+</tr>
+<tr>
+<td>MobaXterm &#x2F; PuTTY</td>
+<td>SSH</td>
+<td>可选</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>⚠️ 用 Windows 自带解压 <code>.xz</code> 后用 Win32DiskImager 写卡，曾出现”解压损坏但工具不报错 → 烧完不启动”。<strong>要么交给 Etcher 直接吃 <code>.xz</code>，要么先核对哈希。</strong></p>
+</blockquote>
+<hr>
+<h2 id="3-镜像下载与校验"><a href="#3-镜像下载与校验" class="headerlink" title="3. 镜像下载与校验"></a>3. 镜像下载与校验</h2><p>直链（约 336 MB，<code>.img.xz</code>）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://dl.armbian.com/nanopi-r5c/Trixie_current_minimal</span><br></pre></td></tr></table></figure>
+
+<p>同目录提供 <code>.sha</code> 与 <code>.asc</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://dl.armbian.com/nanopi-r5c/Trixie_current_minimal.sha</span><br><span class="line">https://dl.armbian.com/nanopi-r5c/Trixie_current_minimal.asc</span><br></pre></td></tr></table></figure>
+
+<p>Windows 校验：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> D:\HA</span><br><span class="line"><span class="built_in">Get-FileHash</span> .\Armbian_*nanopi<span class="literal">-r5c</span>*Trixie*.img.xz <span class="literal">-Algorithm</span> SHA256 | <span class="built_in">Format-List</span></span><br><span class="line"><span class="built_in">Get-Content</span> .\Armbian_*nanopi<span class="literal">-r5c</span>*Trixie*.img.xz.sha</span><br></pre></td></tr></table></figure>
+
+<p>两串 64 位十六进制必须完全一致。</p>
+<hr>
+<h2 id="4-阶段一-写入-TF-卡"><a href="#4-阶段一-写入-TF-卡" class="headerlink" title="4. 阶段一 写入 TF 卡"></a>4. 阶段一 写入 TF 卡</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> Armbian Imager → 选 <code>NanoPi R5C</code> → <code>Debian 13 (trixie) Minimal (CLI)</code> → Flash</li>
+</ul>
+<p>或手动：</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Etcher 选择 <code>.img.xz</code> → Flash（Etcher 自行解压）</li>
+<li><input checked="" disabled="" type="checkbox"> 或 Rufus → <strong>DD 镜像模式</strong></li>
+</ul>
+<p>写完后 Windows 提示”需要格式化” → <strong>点取消</strong>（那是 Linux 分区表，正常现象）。</p>
+<p>安全弹出读卡器。</p>
+<hr>
+<h2 id="5-阶段二-首次从-TF-卡启动"><a href="#5-阶段二-首次从-TF-卡启动" class="headerlink" title="5. 阶段二 首次从 TF 卡启动"></a>5. 阶段二 首次从 TF 卡启动</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> 断开 R5C 电源</li>
+<li><input checked="" disabled="" type="checkbox"> 插入 TF 卡</li>
+<li><input checked="" disabled="" type="checkbox"> 接网线到任一 2.5G 口（两个口默认都发 DHCP 请求）</li>
+<li><input checked="" disabled="" type="checkbox"> 插入 USB-C 5V 电源</li>
+<li><input checked="" disabled="" type="checkbox"> 等待 <strong>1–2 分钟</strong>（首启自动扩分区 + 生成 SSH 密钥）</li>
+</ul>
+<p>启动成功的标志：</p>
+<table>
+<thead>
+<tr>
+<th>指示灯</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SYS（红）</td>
+<td>由常亮转为<strong>慢闪</strong></td>
+</tr>
+<tr>
+<td>网口灯</td>
+<td>亮起 &#x2F; 闪烁</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>有串口线时：3Pin 调试口，<strong>1500000 8N1</strong>，可看到完整启动日志。</p>
+</blockquote>
+<hr>
+<h2 id="6-阶段三-找到-IP-并登录"><a href="#6-阶段三-找到-IP-并登录" class="headerlink" title="6. 阶段三 找到 IP 并登录"></a>6. 阶段三 找到 IP 并登录</h2><h3 id="6-1-找-IP"><a href="#6-1-找-IP" class="headerlink" title="6.1 找 IP"></a>6.1 找 IP</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法 1：路由器后台 → DHCP 客户端列表 → 找新增设备</span></span><br><span class="line"><span class="comment"># 方法 2：ARP 表</span></span><br><span class="line">arp <span class="literal">-a</span> | <span class="built_in">Select-String</span> <span class="string">&quot;192.168&quot;</span></span><br><span class="line"><span class="comment"># 方法 3：nmap 扫描</span></span><br><span class="line">nmap <span class="literal">-sn</span> <span class="number">192.168</span>.*.<span class="number">0</span>/<span class="number">24</span></span><br></pre></td></tr></table></figure>
+
+<p>本次实测 IP：<code>192.168.*.30</code></p>
+<h3 id="6-2-首次登录"><a href="#6-2-首次登录" class="headerlink" title="6.2 首次登录"></a>6.2 首次登录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.*.30     <span class="comment"># 默认密码：1234</span></span><br></pre></td></tr></table></figure>
+
+<p>首次登录<strong>必须一次完成</strong>三步（中断需重来）：</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 修改 root 密码（输入两遍）</li>
+<li><input checked="" disabled="" type="checkbox"> 创建普通用户 + 密码（该用户拥有 sudo）</li>
+<li><input checked="" disabled="" type="checkbox"> 确认时区（可先回车跳过，之后用 <code>timedatectl</code> 改）</li>
+</ul>
+<blockquote>
+<p>键盘为 <strong>QWERTY</strong> 布局；密码避免中文与特殊符号。</p>
+</blockquote>
+<hr>
+<h2 id="7-阶段四-写入前预检"><a href="#7-阶段四-写入前预检" class="headerlink" title="7. 阶段四 写入前预检"></a>7. 阶段四 写入前预检</h2><p><strong>这一步的核心目的：确认哪块盘是 eMMC。选错会抹掉正在运行的 SD 卡。</strong></p>
+<h3 id="7-1-基础信息"><a href="#7-1-基础信息" class="headerlink" title="7.1 基础信息"></a>7.1 基础信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">findmnt -no SOURCE /                          <span class="comment"># 当前根分区</span></span><br><span class="line">lsblk -o NAME,SIZE,TYPE,TRAN,FSTYPE,MOUNTPOINTS</span><br><span class="line"><span class="built_in">df</span> -h /</span><br><span class="line">free -h</span><br><span class="line">ip -br a</span><br><span class="line"><span class="built_in">cat</span> /sys/class/thermal/thermal_zone0/temp     <span class="comment"># 温度 ÷1000，正常 45~65℃</span></span><br><span class="line">ping -c2 223.5.5.5</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-精确区分-eMMC-与-SD-卡"><a href="#7-2-精确区分-eMMC-与-SD-卡" class="headerlink" title="7.2 精确区分 eMMC 与 SD 卡"></a>7.2 精确区分 eMMC 与 SD 卡</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> /dev/mmcblk[0-9]; <span class="keyword">do</span></span><br><span class="line">  <span class="built_in">printf</span> <span class="string">&#x27;%-14s %-4s %s\n&#x27;</span> <span class="string">&quot;<span class="variable">$d</span>&quot;</span> \</span><br><span class="line">    <span class="string">&quot;<span class="subst">$(cat /sys/block/$&#123;d#/dev/&#125;/device/type 2&gt;/dev/null)</span>&quot;</span> \</span><br><span class="line">    <span class="string">&quot;<span class="subst">$(lsblk -dno SIZE <span class="string">&quot;<span class="variable">$d</span>&quot;</span>)</span>&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>判定规则：<code>device/type</code> 输出 <code>MMC</code> &#x3D; eMMC，输出 <code>SD</code> &#x3D; 内存卡。</strong></p>
+<p>本次实测输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/dev/mmcblk0   SD   29.5G      ← 正在运行的 TF 卡，绝对不能碰</span><br><span class="line">/dev/mmcblk1   MMC  28.9G      ← 板载 eMMC，安装目标</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-官方探测器（最权威，自动排除运行中的盘）"><a href="#7-3-官方探测器（最权威，自动排除运行中的盘）" class="headerlink" title="7.3 官方探测器（最权威，自动排除运行中的盘）"></a>7.3 官方探测器（最权威，自动排除运行中的盘）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo armbian-install --api detect</span><br></pre></td></tr></table></figure>
+
+<p>输出格式为 TSV：<code>名字 角色 字节数 扇区 总线 旋转 型号</code>。本次实测：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mmcblk1 mmc     31037849600     512     mmc     false   -</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只列出 <code>mmcblk1</code>，说明 <code>mmcblk0</code>（SD）已被自动排除 —— 安装菜单里不会出现可误选的项。</p>
+</blockquote>
+<h3 id="7-4-如需备份-eMMC-内原厂数据"><a href="#7-4-如需备份-eMMC-内原厂数据" class="headerlink" title="7.4 如需备份 eMMC 内原厂数据"></a>7.4 如需备份 eMMC 内原厂数据</h3><p>原厂 FriendlyWrt 在 eMMC 上有 9 个分区（p1–p9，p9 为根分区）。只读挂载拷出数据：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mkdir</span> -p /mnt/emmc_old</span><br><span class="line">sudo mount -o ro /dev/mmcblk1p9 /mnt/emmc_old</span><br><span class="line">sudo <span class="built_in">ls</span> -la /mnt/emmc_old/root /mnt/emmc_old/etc</span><br><span class="line"><span class="comment"># 需要时：sudo cp -a /mnt/emmc_old/root/xxx ~/</span></span><br><span class="line">sudo umount /mnt/emmc_old</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="8-阶段五-执行-armbian-install"><a href="#8-阶段五-执行-armbian-install" class="headerlink" title="8. 阶段五 执行 armbian-install"></a>8. 阶段五 执行 armbian-install</h2><blockquote>
+<p>当前 Armbian 中 <code>armbian-install</code> 已是 <code>armbian-config</code> 的 <code>module_partitioner</code> 模块的兼容入口，菜单文字与下面一致。</p>
+</blockquote>
+<h3 id="8-1-方式一：交互式（可看清每一屏）"><a href="#8-1-方式一：交互式（可看清每一屏）" class="headerlink" title="8.1 方式一：交互式（可看清每一屏）"></a>8.1 方式一：交互式（可看清每一屏）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y tmux 2&gt;/dev/null; tmux new -s inst   <span class="comment"># 防 SSH 掉线打断</span></span><br><span class="line">sudo armbian-install</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>屏幕</th>
+<th>提示文字</th>
+<th>选择</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>①</td>
+<td><code>What would you like to do?</code></td>
+<td><code>Install Armbian to a disk (SD / eMMC / NVMe / SATA / USB)</code></td>
+</tr>
+<tr>
+<td>②</td>
+<td><code>Select the destination disk:</code></td>
+<td><code>mmcblk1  28.9GiB</code>（eMMC，唯一一项）</td>
+</tr>
+<tr>
+<td>③</td>
+<td><code>Choose how /dev/mmcblk1 should boot:</code></td>
+<td><strong><code>emmc</code></strong> — <code>Full install to this device (boot + system)</code></td>
+</tr>
+<tr>
+<td>④</td>
+<td><code>Root filesystem for /dev/mmcblk1:</code></td>
+<td><strong><code>ext4</code></strong>（<code>Default, most compatible</code>）</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td><code>This will ERASE /dev/mmcblk1 and install Armbian (emmc, ext4). Proceed?</code></td>
+<td><code>Erase and install</code></td>
+</tr>
+<tr>
+<td>⑥</td>
+<td><code>Installing to /dev/mmcblk1 - please wait...</code></td>
+<td>等待 1–8 分钟，<strong>勿断电</strong></td>
+</tr>
+<tr>
+<td>⑦</td>
+<td><code>Installation to /dev/mmcblk1 finished successfully...</code></td>
+<td>成功</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>操作键：方向键&#x2F;Tab 移动，Enter 确认，Esc 取消（取消不会写盘）。<br>第 ③ 屏的另一个选项 <code>sd</code> 是”引导留在当前介质”，<strong>不要选</strong>。</p>
+</blockquote>
+<h3 id="8-2-方式二：一条命令（等价，避免点错）"><a href="#8-2-方式二：一条命令（等价，避免点错）" class="headerlink" title="8.2 方式二：一条命令（等价，避免点错）"></a>8.2 方式二：一条命令（等价，避免点错）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo armbian-install --target /dev/mmcblk1 --boot emmc --fs ext4 --<span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>可选值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--target</code></td>
+<td><code>/dev/mmcblkX</code></td>
+<td>目标整盘设备，必须是块设备</td>
+</tr>
+<tr>
+<td><code>--boot</code></td>
+<td><code>emmc</code> <code>sd</code> <code>mtd</code> <code>spi</code> <code>standalone</code> <code>uefi</code> <code>bios</code> …</td>
+<td><code>emmc</code> &#x3D; 引导+系统都装到该盘</td>
+</tr>
+<tr>
+<td><code>--fs</code></td>
+<td><code>ext4</code> <code>btrfs</code> <code>f2fs</code></td>
+<td>新手用 <code>ext4</code>；要快照可 <code>btrfs</code></td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>—</td>
+<td>不加会拒绝执行（安全设计）</td>
+</tr>
+</tbody></table>
+<h3 id="8-3-安装过程实际做了什么"><a href="#8-3-安装过程实际做了什么" class="headerlink" title="8.3 安装过程实际做了什么"></a>8.3 安装过程实际做了什么</h3><p>本次 <code>/var/log/armbian-install.log</code> 摘要：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[INFO] scenario: inheriting source partition table &#x27;gpt&#x27; for emmc</span><br><span class="line">[INFO] scenario: emmc on /dev/mmcblk1 (31037849600B, 512B sectors) fs=ext4</span><br><span class="line">start=16</span><br><span class="line">table=gpt</span><br><span class="line">part=root:100%:ext4:boot</span><br><span class="line">/dev/mmcblk1: calling ioctl to re-read partition table: Success</span><br><span class="line">[INFO] apply_partitions: keeping Rockchip reserved sectors 7168-16383 on /dev/mmcblk1</span><br><span class="line">7168+0 records in  → 3670016 bytes (3.5 MiB)  ← idbloader / TPL</span><br><span class="line">4096+0 records in  → 2097152 bytes (2.0 MiB)  ← u-boot.itb</span><br><span class="line">[INFO] scenario: emmc install to /dev/mmcblk1 completed</span><br></pre></td></tr></table></figure>
+
+<p>即：</p>
+<ol>
+<li>沿用 GPT 分区表，新建单个 <code>root</code> 分区占满全盘</li>
+<li><strong>保留 Rockchip 裸扇区 7168–16383</strong>（u-boot 专用区，不能覆盖）</li>
+<li>写入 3.5 MiB idbloader + 2.0 MiB u-boot.itb</li>
+<li><code>mkfs.ext4</code> + rsync 整个根文件系统</li>
+<li>全程 <strong>1 分 22 秒</strong></li>
+</ol>
+<h3 id="8-4-失败处理"><a href="#8-4-失败处理" class="headerlink" title="8.4 失败处理"></a>8.4 失败处理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">tail</span> -n 80 /var/log/armbian-install.log</span><br></pre></td></tr></table></figure>
+
+<p>界面会显示 <code>Installation FAILED (code N)</code>。<strong>失败不影响 TF 卡系统</strong>，修好可重试。</p>
+<hr>
+<h2 id="9-阶段六-写入后-UUID-校验"><a href="#9-阶段六-写入后-UUID-校验" class="headerlink" title="9. 阶段六 写入后 UUID 校验"></a>9. 阶段六 写入后 UUID 校验</h2><blockquote>
+<p>这是”装完起不来”最常见的原因：<code>armbianEnv.txt</code> 的 rootdev 与 <code>/etc/fstab</code> 的 UUID 不一致。</p>
+</blockquote>
+<h3 id="9-1-检查分区结果"><a href="#9-1-检查分区结果" class="headerlink" title="9.1 检查分区结果"></a>9.1 检查分区结果</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS /dev/mmcblk1</span><br></pre></td></tr></table></figure>
+
+<p>预期（原来的 9 个分区消失）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NAME         SIZE FSTYPE MOUNTPOINTS</span><br><span class="line">mmcblk1     28.9G</span><br><span class="line">└─mmcblk1p1 28.9G ext4</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-挂载-eMMC-并核对三处-UUID"><a href="#9-2-挂载-eMMC-并核对三处-UUID" class="headerlink" title="9.2 挂载 eMMC 并核对三处 UUID"></a>9.2 挂载 eMMC 并核对三处 UUID</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mkdir</span> -p /mnt/ec</span><br><span class="line">sudo mount /dev/mmcblk1p1 /mnt/ec</span><br><span class="line"></span><br><span class="line"><span class="built_in">ls</span> /mnt/ec/boot</span><br><span class="line"><span class="built_in">cat</span> /mnt/ec/boot/armbianEnv.txt</span><br><span class="line">grep -v <span class="string">&#x27;^#&#x27;</span> /mnt/ec/etc/fstab</span><br><span class="line">sudo blkid -s UUID -o value /dev/mmcblk1p1</span><br><span class="line"></span><br><span class="line">sudo umount /mnt/ec</span><br></pre></td></tr></table></figure>
+
+<p>本次实测结果（<strong>三处一致 ✅</strong>）：</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>实际值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>armbianEnv.txt</code> → <code>rootdev</code></td>
+<td><code>UUID=&lt;ROOT_UUID&gt;</code></td>
+</tr>
+<tr>
+<td><code>/etc/fstab</code> → <code>/</code></td>
+<td><code>UUID=&lt;ROOT_UUID&gt;</code></td>
+</tr>
+<tr>
+<td><code>blkid /dev/mmcblk1p1</code></td>
+<td><code>&lt;ROOT_UUID&gt;</code></td>
+</tr>
+<tr>
+<td><code>/boot</code> 内容</td>
+<td><code>Image</code> <code>uInitrd</code> <code>boot.scr</code> <code>dtb/</code> <code>armbianEnv.txt</code> 等齐全</td>
+</tr>
+<tr>
+<td>设备树</td>
+<td><code>rockchip/rk3568-nanopi-r5c.dtb</code>，overlay <code>nanopi-r5c-leds</code></td>
+</tr>
+</tbody></table>
+<p><code>/boot/armbianEnv.txt</code> 实际内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">verbosity</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">bootlogo</span>=<span class="literal">false</span></span><br><span class="line"><span class="attr">console</span>=both</span><br><span class="line"><span class="attr">extraargs</span>=cma=<span class="number">256</span>M</span><br><span class="line"><span class="attr">overlay_prefix</span>=rockchip-rk3568</span><br><span class="line"><span class="attr">overlays</span>=nanopi-r5c-leds</span><br><span class="line"><span class="attr">fdtfile</span>=rockchip/rk3568-nanopi-r5c.dtb</span><br><span class="line"><span class="attr">rootdev</span>=UUID=&lt;ROOT_UUID&gt;</span><br><span class="line"><span class="attr">rootfstype</span>=ext4</span><br><span class="line"><span class="attr">usbstoragequirks</span>=<span class="number">0</span>x2537:<span class="number">0</span>x1066:u,<span class="number">0</span>x2537:<span class="number">0</span>x1068:u</span><br></pre></td></tr></table></figure>
+
+<p>三处不一致时：同步修改 <code>armbianEnv.txt</code> 的 <code>rootdev</code> 与 <code>/etc/fstab</code> 的 UUID，再重启。</p>
+<hr>
+<h2 id="10-阶段七-切换到-eMMC-启动"><a href="#10-阶段七-切换到-eMMC-启动" class="headerlink" title="10. 阶段七 切换到 eMMC 启动"></a>10. 阶段七 切换到 eMMC 启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo poweroff</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 等红灯<strong>完全熄灭</strong>（约 5 秒，别只等屏幕黑）</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>拔掉 TF 卡</strong>（本板 SD 优先级高于 eMMC，不拔会继续从卡启动）</li>
+<li><input checked="" disabled="" type="checkbox"> 插电源上电</li>
+</ul>
+<p>预期：3–10 秒出内核日志，SYS 慢闪，网口灯亮，30–60 秒可 SSH。<br><strong>IP 可能变化</strong>，需重新在路由器里查一次。</p>
+<hr>
+<h2 id="11-阶段八-验收"><a href="#11-阶段八-验收" class="headerlink" title="11. 阶段八 验收"></a>11. 阶段八 验收</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">findmnt -no SOURCE /</span><br><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> /dev/mmcblk[0-9]; <span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">&#x27;%s %s\n&#x27;</span> <span class="string">&quot;<span class="variable">$d</span>&quot;</span> <span class="string">&quot;<span class="subst">$(cat /sys/block/$&#123;d#/dev/&#125;/device/type)</span>&quot;</span>; <span class="keyword">done</span></span><br><span class="line">lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS</span><br><span class="line"><span class="built_in">df</span> -h /</span><br><span class="line">systemctl --failed</span><br><span class="line">ip -br a</span><br><span class="line"><span class="built_in">cat</span> /etc/armbian-release</span><br><span class="line"><span class="built_in">uname</span> -r</span><br></pre></td></tr></table></figure>
+
+<p>本次实测：</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>实际输出</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>findmnt -no SOURCE /</code></td>
+<td><code>/dev/mmcblk1p1</code></td>
+<td>根在 eMMC ✅</td>
+</tr>
+<tr>
+<td><code>mmcblk0</code></td>
+<td>不存在（<code>No such file or directory</code>）</td>
+<td>SD 已拔出，系统里只剩一块盘 ✅</td>
+</tr>
+<tr>
+<td><code>df -h /</code></td>
+<td>29G，已用 1.6G，可用 26G</td>
+<td>分区铺满 32GB eMMC ✅</td>
+</tr>
+<tr>
+<td><code>systemctl --failed</code></td>
+<td><code>0 loaded units listed</code></td>
+<td>无失败单元 ✅</td>
+</tr>
+<tr>
+<td><code>ip -br a</code></td>
+<td><code>enP1p17s0 UP 192.168.*.30/24</code><br><code>enP2p33s0 DOWN</code><br><code>wlp1s0 DOWN</code></td>
+<td>网络正常，但<strong>接口未重命名</strong> ⚠️</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>⚠️ 注意：eMMC 单独存在时在本板仍枚举为 <code>mmcblk1</code>，但不同内核&#x2F;插卡组合下编号可能变。<br><strong>判断是否为 eMMC 永远看 <code>device/type</code>（MMC &#x2F; SD），不要依赖编号。</strong></p>
+</blockquote>
+<hr>
+<h2 id="12-阶段九-收尾配置"><a href="#12-阶段九-收尾配置" class="headerlink" title="12. 阶段九 收尾配置"></a>12. 阶段九 收尾配置</h2><h3 id="12-1-系统更新与时区"><a href="#12-1-系统更新与时区" class="headerlink" title="12.1 系统更新与时区"></a>12.1 系统更新与时区</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update &amp;&amp; sudo apt full-upgrade -y</span><br><span class="line">sudo timedatectl set-timezone Asia/Shanghai</span><br><span class="line">sudo apt install -y htop iperf3 lm-sensors ethtool mmc-utils</span><br><span class="line">sensors</span><br><span class="line">sudo mmc extcsd <span class="built_in">read</span> /dev/mmcblk1 | grep -Ei <span class="string">&#x27;life|pre_eol&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="12-2-网口重命名（可选，软路由建议）"><a href="#12-2-网口重命名（可选，软路由建议）" class="headerlink" title="12.2 网口重命名（可选，软路由建议）"></a>12.2 网口重命名（可选，软路由建议）</h3><p><strong>问题</strong>：Armbian 板级 udev 规则写的是旧内核 PCI 地址 <code>0001:01:00.0</code> &#x2F; <code>0002:01:00.0</code>，<br>6.18 内核下实际为 <code>0001:11:00.0</code>（0x11&#x3D;17）与 <code>0002:21:00.0</code>（0x21&#x3D;33），规则未命中，<br>因此显示为 <code>enP1p17s0</code> &#x2F; <code>enP2p33s0</code> 而不是 <code>lan1</code> &#x2F; <code>wan1</code>。<br><strong>功能不受影响，仅名字不同。</strong></p>
+<p>先确认物理口对应关系（把网线插到丝印 <strong>WAN</strong> 口，看哪个接口变 UP）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">watch -n1 <span class="string">&#x27;ip -br a&#x27;</span></span><br><span class="line"><span class="built_in">readlink</span> -f /sys/class/net/enP1p17s0/device</span><br><span class="line"><span class="built_in">readlink</span> -f /sys/class/net/enP2p33s0/device</span><br><span class="line"><span class="built_in">cat</span> /sys/class/net/enP1p17s0/address</span><br><span class="line"><span class="built_in">cat</span> /sys/class/net/enP2p33s0/address</span><br></pre></td></tr></table></figure>
+
+<p>用 MAC 绑定重命名（比 PCI 地址更可靠）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">tee</span> /etc/udev/rules.d/70-persistent-net.rules &gt;/dev/null &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">SUBSYSTEM==<span class="string">&quot;net&quot;</span>, ACTION==<span class="string">&quot;add&quot;</span>, ATTR&#123;address&#125;==<span class="string">&quot;&lt;WAN口MAC&gt;&quot;</span>, NAME=<span class="string">&quot;wan1&quot;</span></span><br><span class="line">SUBSYSTEM==<span class="string">&quot;net&quot;</span>, ACTION==<span class="string">&quot;add&quot;</span>, ATTR&#123;address&#125;==<span class="string">&quot;&lt;LAN口MAC&gt;&quot;</span>, NAME=<span class="string">&quot;lan1&quot;</span></span><br><span class="line">EOF</span><br><span class="line">sudo udevadm control --reload</span><br><span class="line">sudo udevadm trigger --subsystem-match=net</span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
+
+<p>重命名后 NetworkManager 连接会按新名字重建，重启后需重新确认 IP：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli device status</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-3-固定-IP"><a href="#12-3-固定-IP" class="headerlink" title="12.3 固定 IP"></a>12.3 固定 IP</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nmcli device status</span><br><span class="line">sudo nmcli con mod <span class="string">&quot;&lt;连接名&gt;&quot;</span> ipv4.method manual \</span><br><span class="line">     ipv4.addresses 192.168.*.30/24 \</span><br><span class="line">     ipv4.gateway 192.168.*.1 \</span><br><span class="line">     ipv4.dns <span class="string">&quot;223.5.5.5 119.29.29.29&quot;</span></span><br><span class="line">sudo nmcli con up <span class="string">&quot;&lt;连接名&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="12-4-iperf3-是否开机自启（armbian-config-对话框）"><a href="#12-4-iperf3-是否开机自启（armbian-config-对话框）" class="headerlink" title="12.4 iperf3 是否开机自启（armbian-config 对话框）"></a>12.4 iperf3 是否开机自启（armbian-config 对话框）</h3><p><code>armbian-config</code> 安装 iperf3 时会问：</p>
+<blockquote>
+<p><em>Choose this option if Iperf3 should start automatically as a daemon, now and at boot time.<br>Start Iperf3 as a daemon automatically?</em></p>
+</blockquote>
+<p><strong>选 No &#x2F; Cancel。</strong></p>
+<ul>
+<li>iperf3 是临时测速工具，默认监听 5201 且无认证，常驻等于平白多一个暴露面</li>
+<li>选 No <strong>不影响安装</strong>，<code>iperf3</code> 命令照常可用</li>
+</ul>
+<p>手动测速：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 板子上当服务端（-D 为临时后台，重启不复活）</span></span><br><span class="line">iperf3 -s -D</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Windows 端（下载 iperf3 二进制后在该目录执行）</span></span><br><span class="line">iperf3.exe <span class="literal">-c</span> <span class="number">192.168</span>.*.<span class="number">30</span> <span class="literal">-t</span> <span class="number">30</span></span><br><span class="line">iperf3.exe <span class="literal">-c</span> <span class="number">192.168</span>.*.<span class="number">30</span> <span class="literal">-t</span> <span class="number">30</span> <span class="literal">-P</span> <span class="number">4</span>      <span class="comment"># 多流压满 2.5G</span></span><br><span class="line">iperf3.exe <span class="literal">-c</span> <span class="number">192.168</span>.*.<span class="number">30</span> <span class="literal">-t</span> <span class="number">30</span> <span class="literal">-P</span> <span class="number">4</span> <span class="literal">-R</span>   <span class="comment"># 反向测下行</span></span><br></pre></td></tr></table></figure>
+
+<p>判读：2.5G 口理论 2.35 Gbit&#x2F;s，实测 <strong>2.0–2.3 Gbit&#x2F;s</strong> 为优秀；只有 ~940 Mbps 说明链路卡在千兆（网线或对端口）。</p>
+<p>万一需要自启：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> --now iperf3</span><br><span class="line">sudo systemctl <span class="built_in">disable</span> --now iperf3</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-5-eMMC-寿命优化"><a href="#12-5-eMMC-寿命优化" class="headerlink" title="12.5 eMMC 寿命优化"></a>12.5 eMMC 寿命优化</h3><ul>
+<li><code>/var/log</code> 已挂 <code>zram1</code>（Armbian 默认日志内存化），无需额外操作</li>
+<li>大量写日志的服务，建议把数据目录放到 USB 硬盘</li>
+<li>定期查看寿命：<code>sudo mmc extcsd read /dev/mmcblk1 | grep -i life</code></li>
+</ul>
+<h3 id="12-6-保留-TF-卡"><a href="#12-6-保留-TF-卡" class="headerlink" title="12.6 保留 TF 卡"></a>12.6 保留 TF 卡</h3><p><strong>不要格式化那张 TF 卡</strong> —— 它就是救援盘：eMMC 系统起不来时插上照样能启动。</p>
+<hr>
+<h2 id="13-故障对照表"><a href="#13-故障对照表" class="headerlink" title="13. 故障对照表"></a>13. 故障对照表</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上电红灯常亮、不闪、无网络</td>
+<td>电源不足 &#x2F; 卡没插好 &#x2F; 镜像写坏</td>
+<td>换 5V&#x2F;3A 好电源；重写卡并核对哈希</td>
+</tr>
+<tr>
+<td>插卡后进的仍是原厂 FriendlyWrt</td>
+<td>eMMC 引导优先</td>
+<td>Maskrom <code>EraseAll</code> 擦 eMMC</td>
+</tr>
+<tr>
+<td><code>--api detect</code> 目标为空</td>
+<td>eMMC 未识别</td>
+<td>重启一次；换卡排除；仍空则查硬件</td>
+</tr>
+<tr>
+<td><code>armbian-install</code> 命令不存在</td>
+<td>缺 armbian-config</td>
+<td><code>sudo apt install -y armbian-config</code></td>
+</tr>
+<tr>
+<td><code>Installation FAILED (code N)</code></td>
+<td>设备&#x2F;传输&#x2F;工具错误</td>
+<td><code>sudo tail -100 /var/log/armbian-install.log</code></td>
+</tr>
+<tr>
+<td>装完拔卡黑屏&#x2F;不启动</td>
+<td>bootloader 未写成功 &#x2F; 误选 <code>sd</code> 模式</td>
+<td>插回 TF 卡 → <code>sudo armbian-install bootloader --target /dev/mmcblk1 --yes</code></td>
+</tr>
+<tr>
+<td>拔卡后还是老系统</td>
+<td>未完全断电就插拔</td>
+<td>完全断电 10 秒再上电</td>
+</tr>
+<tr>
+<td>网口没拿到 IP</td>
+<td>接口未重命名 &#x2F; 线序</td>
+<td><code>nmcli device status</code>；换口试；<code>sudo dhclient enP1p17s0</code></td>
+</tr>
+<tr>
+<td>温度 80℃+</td>
+<td>被动散热、通风差</td>
+<td>检查外壳装配；可加 5V 小风扇</td>
+</tr>
+<tr>
+<td>SSH 提示 host key 变更</td>
+<td>重装后密钥变化</td>
+<td><code>ssh-keygen -R &lt;IP&gt;</code></td>
+</tr>
+<tr>
+<td><code>armbianEnv.txt</code> 与 fstab UUID 不一致</td>
+<td>安装异常</td>
+<td>手动同步两处 UUID</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="14-救砖流程-Maskrom"><a href="#14-救砖流程-Maskrom" class="headerlink" title="14. 救砖流程 Maskrom"></a>14. 救砖流程 Maskrom</h2><p>适用：完全无法启动、<code>--api detect</code> 看不到 eMMC、需要彻底清空存储。</p>
+<ol>
+<li>安装 <strong>DriverAssistant</strong> 驱动</li>
+<li>板子<strong>断电</strong></li>
+<li><strong>按住 MASK 键不放</strong>，插上电源，状态灯亮约 3 秒后松开</li>
+<li>用 <strong>USB-A 公对公数据线</strong>连接电脑与<strong>靠 TF 卡那一侧的 USB 口</strong></li>
+<li>打开 <strong>RKDevTool</strong>，应显示 <code>Found One MASKROM Device</code></li>
+<li><code>Advanced Function</code> → Boot 选 <code>MiniLoaderAll.bin</code>（RK3568 版）→ 点 <code>Download</code></li>
+<li>勾选 <code>EMMC</code> → <code>Switch Storage</code>（板子有 SPI Flash 时必须先切存储）</li>
+<li>点 <code>EraseAll</code> 清空 eMMC</li>
+<li>之后插 TF 卡引导，或重新烧写镜像</li>
+</ol>
+<blockquote>
+<p>原厂固件可从 <a target="_blank" rel="noopener" href="http://download.friendlyelec.com/NanoPiR5C">FriendlyElec 网盘</a> 获取（<code>-eflasher-</code> &#x2F; <code>-usb-</code> 后缀版本）。</p>
+</blockquote>
+<hr>
+<h2 id="15-附录-A-命令速查"><a href="#15-附录-A-命令速查" class="headerlink" title="15. 附录 A 命令速查"></a>15. 附录 A 命令速查</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ── 识别设备 ──────────────────────────────────────────</span></span><br><span class="line">findmnt -no SOURCE /                                    <span class="comment"># 当前根设备</span></span><br><span class="line">lsblk -o NAME,SIZE,TYPE,TRAN,FSTYPE,MOUNTPOINTS          <span class="comment"># 块设备总览</span></span><br><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> /dev/mmcblk[0-9]; <span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">&#x27;%s %s\n&#x27;</span> <span class="string">&quot;<span class="variable">$d</span>&quot;</span> \</span><br><span class="line">  <span class="string">&quot;<span class="subst">$(cat /sys/block/$&#123;d#/dev/&#125;/device/type)</span>&quot;</span>; <span class="keyword">done</span>       <span class="comment"># MMC=emmc / SD=卡</span></span><br><span class="line">sudo armbian-install --api detect                        <span class="comment"># 官方安装目标探测</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ── 安装到 eMMC ───────────────────────────────────────</span></span><br><span class="line">sudo armbian-install                                     <span class="comment"># 交互式 TUI</span></span><br><span class="line">sudo armbian-install --target /dev/mmcblk1 --boot emmc --fs ext4 --<span class="built_in">yes</span></span><br><span class="line">sudo armbian-install --<span class="built_in">help</span>                              <span class="comment"># 查看全部参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ── 只补写引导（不重装系统）────────────────────────────</span></span><br><span class="line">sudo armbian-install bootloader --target /dev/mmcblk1 --<span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ── 安装日志 ──────────────────────────────────────────</span></span><br><span class="line">sudo <span class="built_in">tail</span> -n 100 /var/log/armbian-install.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># ── 校验引导配置 ──────────────────────────────────────</span></span><br><span class="line"><span class="built_in">cat</span> /boot/armbianEnv.txt</span><br><span class="line">grep -v <span class="string">&#x27;^#&#x27;</span> /etc/fstab</span><br><span class="line">sudo blkid -s UUID -o value /dev/mmcblk1p1</span><br><span class="line"></span><br><span class="line"><span class="comment"># ── 硬件状态 ──────────────────────────────────────────</span></span><br><span class="line"><span class="built_in">cat</span> /sys/class/thermal/thermal_zone0/temp                <span class="comment"># 温度 ×1000</span></span><br><span class="line">sensors</span><br><span class="line">sudo mmc extcsd <span class="built_in">read</span> /dev/mmcblk1 | grep -Ei <span class="string">&#x27;life|pre_eol&#x27;</span></span><br><span class="line">ip -br a</span><br><span class="line">nmcli device status</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="16-附录-B-本次实测数据"><a href="#16-附录-B-本次实测数据" class="headerlink" title="16. 附录 B 本次实测数据"></a>16. 附录 B 本次实测数据</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>镜像</td>
+<td>Armbian Debian 13 trixie Minimal (CLI)</td>
+</tr>
+<tr>
+<td>内核</td>
+<td><code>6.18.56-current-rockchip64</code></td>
+</tr>
+<tr>
+<td>U-Boot</td>
+<td>v2026.01（<code>nanopi-r5c-rk3568_defconfig</code>）</td>
+</tr>
+<tr>
+<td>分区表</td>
+<td>GPT，单 root 分区 100% ext4</td>
+</tr>
+<tr>
+<td>安装前 TF 卡</td>
+<td><code>/dev/mmcblk0</code>，type&#x3D;SD，29.5G，根分区 <code>mmcblk0p1</code> 29.2G</td>
+</tr>
+<tr>
+<td>安装前 eMMC</td>
+<td><code>/dev/mmcblk1</code>，type&#x3D;MMC，28.9G，<strong>9 个分区</strong>（原厂 FriendlyWrt）</td>
+</tr>
+<tr>
+<td>eMMC 原始容量</td>
+<td><code>31037849600</code> 字节（512B 扇区）</td>
+</tr>
+<tr>
+<td>新根分区 UUID</td>
+<td><code>&lt;ROOT_UUID&gt;</code></td>
+</tr>
+<tr>
+<td>安装耗时</td>
+<td><code>21:34:11</code> → <code>21:35:33</code>，<strong>1 分 22 秒</strong></td>
+</tr>
+<tr>
+<td>安装后根分区</td>
+<td><code>/dev/mmcblk1p1</code>，29G，已用 1.6G</td>
+</tr>
+<tr>
+<td>网卡命名</td>
+<td><code>enP1p17s0</code>（UP，192.168.*.30）、<code>enP2p33s0</code>（DOWN）、<code>wlp1s0</code>（DOWN）</td>
+</tr>
+<tr>
+<td>日志内存化</td>
+<td><code>/var/log</code> → zram1（50M），<code>/var/log.hdd</code> 在根分区</td>
+</tr>
+<tr>
+<td>交换</td>
+<td>zram0 1.9G</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="17-参考链接"><a href="#17-参考链接" class="headerlink" title="17. 参考链接"></a>17. 参考链接</h2><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Armbian R5C 镜像页</td>
+<td><a target="_blank" rel="noopener" href="https://armbian.com/boards/nanopi-r5c">https://armbian.com/boards/nanopi-r5c</a></td>
+</tr>
+<tr>
+<td>安装到内部存储</td>
+<td><a target="_blank" rel="noopener" href="https://docs.armbian.com/getting-started/install-to-internal-storage/">https://docs.armbian.com/getting-started/install-to-internal-storage/</a></td>
+</tr>
+<tr>
+<td>首次启动与登录</td>
+<td><a target="_blank" rel="noopener" href="https://docs.armbian.com/getting-started/first-boot-and-login/">https://docs.armbian.com/getting-started/first-boot-and-login/</a></td>
+</tr>
+<tr>
+<td>写入镜像</td>
+<td><a target="_blank" rel="noopener" href="https://docs.armbian.com/getting-started/writing-the-image/">https://docs.armbian.com/getting-started/writing-the-image/</a></td>
+</tr>
+<tr>
+<td>Armbian Imager</td>
+<td><a target="_blank" rel="noopener" href="https://imager.armbian.com/">https://imager.armbian.com</a></td>
+</tr>
+<tr>
+<td>R5C 官方 Wiki（Maskrom &#x2F; eMMC 烧写）</td>
+<td><a target="_blank" rel="noopener" href="https://wiki.friendlyelec.com/wiki/index.php/NanoPi_R5C">https://wiki.friendlyelec.com/wiki/index.php/NanoPi_R5C</a></td>
+</tr>
+<tr>
+<td>FriendlyElec 固件网盘</td>
+<td><a target="_blank" rel="noopener" href="http://download.friendlyelec.com/NanoPiR5C">http://download.friendlyelec.com/NanoPiR5C</a></td>
+</tr>
+<tr>
+<td>板级配置源码</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/armbian/build/blob/main/config/boards/nanopi-r5c.csc">https://github.com/armbian/build/blob/main/config/boards/nanopi-r5c.csc</a></td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>记录日期：2026-10-17<br>设备：NanoPi R5C（RK3568B2 &#x2F; 4GB &#x2F; 32GB eMMC）<br>结果：✅ 系统已成功运行在 eMMC，单分区 29G，无失败服务单元</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NanoPi-R5C/" rel="tag"># NanoPi R5C</a>
+              <a href="/tags/RK3568/" rel="tag"># RK3568</a>
+              <a href="/tags/Armbian/" rel="tag"># Armbian</a>
+              <a href="/tags/Debian-13/" rel="tag"># Debian 13</a>
+              <a href="/tags/eMMC/" rel="tag"># eMMC</a>
+              <a href="/tags/%E8%BD%AF%E8%B7%AF%E7%94%B1/" rel="tag"># 软路由</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/17/%E9%87%91%E4%B8%80%E6%96%87%E5%8C%96002721-%E4%B8%9A%E7%BB%A9%E4%B8%8E%E8%B5%B0%E5%8A%BF%E5%88%86%E6%9E%90/" rel="prev" title="金一文化（002721.SZ）业绩与股价走势分析">
+                  <i class="fa fa-angle-left"></i> 金一文化（002721.SZ）业绩与股价走势分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/" rel="next" title="NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录">
+                  NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2022 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">hechaomax</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">29k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:47</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

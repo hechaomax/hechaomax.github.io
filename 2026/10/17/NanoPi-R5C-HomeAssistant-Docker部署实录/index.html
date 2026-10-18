@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hechao.vip","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="RK3568 小主机上的 Home Assistant Container 实战：netplan 静态 IP + WiFi 备用通道、清华源装 Docker、南大 ghcr 镜像拉 HA、蓝牙 NET_ADMIN 权限、每周自动备份与内核 hold，含 14 条故障速查。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录">
+<meta property="og:url" content="https://hechao.vip/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/">
+<meta property="og:site_name" content="卷~卷不动了">
+<meta property="og:description" content="RK3568 小主机上的 Home Assistant Container 实战：netplan 静态 IP + WiFi 备用通道、清华源装 Docker、南大 ghcr 镜像拉 HA、蓝牙 NET_ADMIN 权限、每周自动备份与内核 hold，含 14 条故障速查。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-17T15:30:00.000Z">
+<meta property="article:modified_time" content="2026-10-18T07:45:48.665Z">
+<meta property="article:author" content="hechaomax">
+<meta property="article:tag" content="Armbian">
+<meta property="article:tag" content="Debian 13">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Home Assistant">
+<meta property="article:tag" content="NanoPi R5C">
+<meta property="article:tag" content="智能家居">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hechao.vip/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hechao.vip/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/","path":"2026/10/17/NanoPi-R5C-HomeAssistant-Docker部署实录/","title":"NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录 | 卷~卷不动了</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="卷~卷不动了" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">卷~卷不动了</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人随心</p>
+      <img class="custom-logo-image" src="/images/blog-logo.png" alt="卷~卷不动了">
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%83%8C%E6%99%AF%E4%B8%8E%E7%BB%93%E8%AE%BA"><span class="nav-number">2.</span> <span class="nav-text">1. 背景与结论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%98%AF-HAOS-Supervised"><span class="nav-number">2.1.</span> <span class="nav-text">为什么不是 HAOS &#x2F; Supervised</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E6%88%90%E6%9E%9C"><span class="nav-number">2.2.</span> <span class="nav-text">最终成果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%8E%AF%E5%A2%83%E5%9F%BA%E7%BA%BF"><span class="nav-number">3.</span> <span class="nav-text">2. 环境基线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">软件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">3.3.</span> <span class="nav-text">前置检查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%9B%AE%E5%BD%95%E4%B8%8E%E7%AB%AF%E5%8F%A3%E8%A7%84%E5%88%92"><span class="nav-number">4.</span> <span class="nav-text">3. 目录与端口规划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E8%AE%BE%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">4. 系统基础设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%EF%BC%88systemd-networkd-netplan%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">5. 网络配置（systemd-networkd + netplan）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%85%88%E6%90%9E%E6%B8%85%E6%A5%9A%E6%98%AF%E8%B0%81%E5%9C%A8%E7%AE%A1%E7%BD%91%E7%BB%9C"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 先搞清楚是谁在管网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%85%B3%E9%94%AE%E5%9D%91%EF%BC%9A%E4%B8%8D%E8%A6%81%E6%96%B0%E5%BB%BA-netplan-%E6%96%87%E4%BB%B6"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 关键坑：不要新建 netplan 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E4%BF%AE%E6%94%B9%E4%B8%BA%E9%9D%99%E6%80%81-IP"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 修改为静态 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E9%AA%8C%E8%AF%81%E8%A6%81%E7%82%B9"><span class="nav-number">6.4.</span> <span class="nav-text">5.4 验证要点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-WiFi-%E5%A4%87%E7%94%A8%E7%AE%A1%E7%90%86%E9%80%9A%E9%81%93%EF%BC%88%E5%BC%BA%E7%83%88%E5%BB%BA%E8%AE%AE%EF%BC%89"><span class="nav-number">6.5.</span> <span class="nav-text">5.5 WiFi 备用管理通道（强烈建议）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%AE%89%E8%A3%85-Docker%EF%BC%88%E5%9B%BD%E5%86%85%E7%BD%91%E7%BB%9C%E7%89%88%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">6. 安装 Docker（国内网络版）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%AE%98%E6%96%B9%E8%84%9A%E6%9C%AC%E4%BC%9A%E5%A4%B1%E8%B4%A5"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 官方脚本会失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%94%B9%E7%94%A8%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F%E6%BA%90"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 改用国内镜像源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E5%AE%8C%E5%85%A8%E8%BF%9E%E4%B8%8D%E4%B8%8A%E9%95%9C%E5%83%8F%E6%BA%90%E6%97%B6%E7%9A%84%E9%80%80%E8%B7%AF"><span class="nav-number">7.3.</span> <span class="nav-text">6.3 完全连不上镜像源时的退路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E9%99%90%E5%88%B6%E6%97%A5%E5%BF%97%E5%A4%A7%E5%B0%8F%EF%BC%88%E4%BF%9D%E6%8A%A4-eMMC%EF%BC%89"><span class="nav-number">7.4.</span> <span class="nav-text">6.4 限制日志大小（保护 eMMC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-%E9%AA%8C%E8%AF%81"><span class="nav-number">7.5.</span> <span class="nav-text">6.5 验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E9%83%A8%E7%BD%B2-Home-Assistant-Container"><span class="nav-number">8.</span> <span class="nav-text">7. 部署 Home Assistant Container</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E7%9B%AE%E5%BD%95%E4%B8%8E-compose-%E6%96%87%E4%BB%B6"><span class="nav-number">8.1.</span> <span class="nav-text">7.1 目录与 compose 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F%EF%BC%88ghcr-io-%E4%B8%8D%E5%8F%AF%E8%BE%BE%E6%97%B6%EF%BC%89"><span class="nav-number">8.2.</span> <span class="nav-text">7.2 拉取镜像（ghcr.io 不可达时）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E5%90%AF%E5%8A%A8"><span class="nav-number">8.3.</span> <span class="nav-text">7.3 启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E9%AA%8C%E8%AF%81%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">9.</span> <span class="nav-text">8. 验证与初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E8%93%9D%E7%89%99%E6%94%AF%E6%8C%81"><span class="nav-number">10.</span> <span class="nav-text">9. 蓝牙支持</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E5%85%88%E8%A3%85-BlueZ%EF%BC%88%E5%AE%B9%E5%99%A8%E7%89%88%E5%BF%85%E9%A1%BB%EF%BC%89"><span class="nav-number">10.1.</span> <span class="nav-text">9.1 先装 BlueZ（容器版必须）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E6%9D%83%E9%99%90%EF%BC%9Aprivileged-%E4%B8%8D%E5%A4%9F%EF%BC%8C%E5%BF%85%E9%A1%BB%E6%98%BE%E5%BC%8F-cap-add"><span class="nav-number">10.2.</span> <span class="nav-text">9.2 权限：privileged 不够，必须显式 cap_add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E9%AA%8C%E8%AF%81%E6%89%AB%E6%8F%8F"><span class="nav-number">10.3.</span> <span class="nav-text">9.3 验证扫描</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-4-%E4%B8%89%E4%B8%AA%E5%B8%B8%E8%A7%81%E8%AF%AF%E8%A7%A3"><span class="nav-number">10.4.</span> <span class="nav-text">9.4 三个常见误解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-5-%E7%A1%AE%E8%AE%A4%E6%9D%A1%E7%9B%AE%E5%B7%B2%E5%AD%98%E5%9C%A8"><span class="nav-number">10.5.</span> <span class="nav-text">9.5 确认条目已存在</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-6-%E6%94%B9%E9%80%82%E9%85%8D%E5%99%A8%E6%98%BE%E7%A4%BA%E5%90%8D%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">10.6.</span> <span class="nav-text">9.6 改适配器显示名（可选）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E5%A4%87%E4%BB%BD%E7%AD%96%E7%95%A5"><span class="nav-number">11.</span> <span class="nav-text">10. 备份策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E5%81%9C%E5%AE%B9%E5%99%A8"><span class="nav-number">11.1.</span> <span class="nav-text">10.1 为什么必须停容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-%E5%A4%87%E4%BB%BD%E8%84%9A%E6%9C%AC"><span class="nav-number">11.2.</span> <span class="nav-text">10.2 备份脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-3-%E9%AA%8C%E8%AF%81%E5%BD%92%E6%A1%A3%E5%AE%8C%E6%95%B4%E6%80%A7"><span class="nav-number">11.3.</span> <span class="nav-text">10.3 验证归档完整性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-4-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="nav-number">11.4.</span> <span class="nav-text">10.4 定时任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-5-%E5%BF%85%E9%A1%BB%E7%A6%BB%E6%9C%BA"><span class="nav-number">11.5.</span> <span class="nav-text">10.5 必须离机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-6-%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">11.6.</span> <span class="nav-text">10.6 恢复流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E9%94%81%E5%AE%9A%E5%86%85%E6%A0%B8"><span class="nav-number">12.</span> <span class="nav-text">11. 锁定内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-HACS"><span class="nav-number">13.</span> <span class="nav-text">12. HACS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-1-%E5%AE%89%E8%A3%85"><span class="nav-number">13.1.</span> <span class="nav-text">12.1 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-2-%E9%AA%8C%E8%AF%81"><span class="nav-number">13.2.</span> <span class="nav-text">12.2 验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-3-UI-%E6%8E%88%E6%9D%83"><span class="nav-number">13.3.</span> <span class="nav-text">12.3 UI 授权</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="nav-number">14.</span> <span class="nav-text">13. 故障排查速查表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-%E6%97%A5%E5%B8%B8%E7%BB%B4%E6%8A%A4"><span class="nav-number">15.</span> <span class="nav-text">14. 日常维护</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7-HA"><span class="nav-number">15.1.</span> <span class="nav-text">升级 HA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">15.2.</span> <span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%81%A5%E5%BA%B7"><span class="nav-number">15.3.</span> <span class="nav-text">系统健康</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0%E9%99%84%E5%8A%A0%E7%BB%84%E4%BB%B6%E5%95%86%E5%BA%97%E6%97%B6%E7%9A%84%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88"><span class="nav-number">15.4.</span> <span class="nav-text">无附加组件商店时的替代方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="nav-number">16.</span> <span class="nav-text">15. 安全检查清单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-%E9%99%84%E5%BD%95%EF%BC%9A%E6%9C%80%E7%BB%88%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">17.</span> <span class="nav-text">16. 附录：最终配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-opt-homeassistant-compose-yaml"><span class="nav-number">17.1.</span> <span class="nav-text">A. &#x2F;opt&#x2F;homeassistant&#x2F;compose.yaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-etc-netplan-10-dhcp-all-interfaces-yaml"><span class="nav-number">17.2.</span> <span class="nav-text">B. &#x2F;etc&#x2F;netplan&#x2F;10-dhcp-all-interfaces.yaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-etc-docker-daemon-json"><span class="nav-number">17.3.</span> <span class="nav-text">C. &#x2F;etc&#x2F;docker&#x2F;daemon.json</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D-usr-local-sbin-ha-backup-sh"><span class="nav-number">17.4.</span> <span class="nav-text">D. &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;ha-backup.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#E-crontab"><span class="nav-number">17.5.</span> <span class="nav-text">E. crontab</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">18.</span> <span class="nav-text">17. 参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E6%9B%B4%E8%AE%B0%E5%BD%95"><span class="nav-number">19.</span> <span class="nav-text">变更记录</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hechaomax"
+      src="/images/custom-logo.jpeg">
+  <p class="site-author-name" itemprop="name">hechaomax</p>
+  <div class="site-description" itemprop="description">个人博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hechaomax" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hechaomax" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:sir.hechao@163.com" title="E-Mail → mailto:sir.hechao@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+        <div class="back-to-top animated" role="button" aria-label="返回顶部">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://github.com/hechaomax/sxxablog" title="https:&#x2F;&#x2F;github.com&#x2F;hechaomax&#x2F;sxxablog" rel="noopener" target="_blank">博客源码</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hechao.vip/2026/10/17/NanoPi-R5C-HomeAssistant-Docker%E9%83%A8%E7%BD%B2%E5%AE%9E%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/custom-logo.jpeg">
+      <meta itemprop="name" content="hechaomax">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="卷~卷不动了">
+      <meta itemprop="description" content="个人博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录 | 卷~卷不动了">
+      <meta itemprop="description" content="RK3568 小主机上的 Home Assistant Container 实战：netplan 静态 IP + WiFi 备用通道、清华源装 Docker、南大 ghcr 镜像拉 HA、蓝牙 NET_ADMIN 权限、每周自动备份与内核 hold，含 14 条故障速查。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NanoPi R5C + Armbian Debian 13 部署 Home Assistant Container 全记录
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-17 23:30:00" itemprop="dateCreated datePublished" datetime="2026-10-17T23:30:00+08:00">2026-10-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-18 15:45:48" itemprop="dateModified" datetime="2026-10-18T15:45:48+08:00">2026-10-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%8A%98%E8%85%BE/" itemprop="url" rel="index"><span itemprop="name">硬件折腾</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%8A%98%E8%85%BE/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/" itemprop="url" rel="index"><span itemprop="name">智能家居</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>19 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">RK3568 小主机上的 Home Assistant Container 实战：netplan 静态 IP + WiFi 备用通道、清华源装 Docker、南大 ghcr 镜像拉 HA、蓝牙 NET_ADMIN 权限、每周自动备份与内核 hold，含 14 条故障速查。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文基于 2026-10-17 的一次真实安装整理，所有命令均在实际设备上验证通过。<br>目标板：<strong>FriendlyElec NanoPi R5C</strong>（RK3568 &#x2F; 4GB LPDDR4X &#x2F; 32GB eMMC &#x2F; 2.5G 双网口 &#x2F; RTL8822CE）<br>系统：<strong>Armbian_community 26.11.0-trunk.95 trixie</strong>（Debian 13）· 内核 <code>6.18.56-current-rockchip64</code><br>成果：<strong>Home Assistant 2026.10.2 Container 版</strong>跑在 <code>192.168.*.30:8123</code>，带蓝牙与每周自动备份<br>前置：本文接着 <a href="/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/">NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录</a> 往下做，系统需已能从 eMMC 启动</p>
+</blockquote>
+<span id="more"></span>
+
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#1-%E8%83%8C%E6%99%AF%E4%B8%8E%E7%BB%93%E8%AE%BA">1. 背景与结论</a></li>
+<li><a href="#2-%E7%8E%AF%E5%A2%83%E5%9F%BA%E7%BA%BF">2. 环境基线</a></li>
+<li><a href="#3-%E7%9B%AE%E5%BD%95%E4%B8%8E%E7%AB%AF%E5%8F%A3%E8%A7%84%E5%88%92">3. 目录与端口规划</a></li>
+<li><a href="#4-%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E8%AE%BE%E7%BD%AE">4. 系统基础设置</a></li>
+<li><a href="#5-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AEsystemd-networkd--netplan">5. 网络配置（systemd-networkd + netplan）</a></li>
+<li><a href="#6-%E5%AE%89%E8%A3%85-docker%E5%9B%BD%E5%86%85%E7%BD%91%E7%BB%9C%E7%89%88">6. 安装 Docker（国内网络版）</a></li>
+<li><a href="#7-%E9%83%A8%E7%BD%B2-home-assistant-container">7. 部署 Home Assistant Container</a></li>
+<li><a href="#8-%E9%AA%8C%E8%AF%81%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96">8. 验证与初始化</a></li>
+<li><a href="#9-%E8%93%9D%E7%89%99%E6%94%AF%E6%8C%81">9. 蓝牙支持</a></li>
+<li><a href="#10-%E5%A4%87%E4%BB%BD%E7%AD%96%E7%95%A5">10. 备份策略</a></li>
+<li><a href="#11-%E9%94%81%E5%AE%9A%E5%86%85%E6%A0%B8">11. 锁定内核</a></li>
+<li><a href="#12-hacs">12. HACS</a></li>
+<li><a href="#13-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E9%80%9F%E6%9F%A5%E8%A1%A8">13. 故障排查速查表</a></li>
+<li><a href="#14-%E6%97%A5%E5%B8%B8%E7%BB%B4%E6%8A%A4">14. 日常维护</a></li>
+<li><a href="#15-%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95">15. 安全检查清单</a></li>
+<li><a href="#16-%E9%99%84%E5%BD%95%E6%9C%80%E7%BB%88%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">16. 附录：最终配置文件</a></li>
+</ul>
+<hr>
+<h2 id="1-背景与结论"><a href="#1-背景与结论" class="headerlink" title="1. 背景与结论"></a>1. 背景与结论</h2><h3 id="为什么不是-HAOS-Supervised"><a href="#为什么不是-HAOS-Supervised" class="headerlink" title="为什么不是 HAOS &#x2F; Supervised"></a>为什么不是 HAOS &#x2F; Supervised</h3><p>Home Assistant 官方在 2025-05 宣布<a target="_blank" rel="noopener" href="https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/">废弃 Core 与 Supervised 安装方式</a>，<strong>自 2025.12 版本起不再提供支持</strong>，长期只保留两种方式：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>说明</th>
+<th>R5C 可行性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HAOS</strong></td>
+<td>官方整机镜像，带附加组件商店</td>
+<td>❌ 无 RK3568&#x2F;R5C 官方镜像</td>
+</tr>
+<tr>
+<td><strong>HA Container</strong></td>
+<td>官方 Docker 镜像，附加组件自行用容器替代</td>
+<td>✅ <strong>本文采用</strong></td>
+</tr>
+<tr>
+<td>Supervised</td>
+<td>自建系统 + Supervisor</td>
+<td>⚠️ 已废弃，Debian 13 上坑多，不建议</td>
+</tr>
+<tr>
+<td>Core (venv)</td>
+<td>Python 虚拟环境直跑</td>
+<td>⚠️ 已废弃，不建议</td>
+</tr>
+</tbody></table>
+<h3 id="最终成果"><a href="#最终成果" class="headerlink" title="最终成果"></a>最终成果</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Home Assistant</td>
+<td>2026.10.2，Container 版，<code>http://192.168.*.30:8123</code></td>
+</tr>
+<tr>
+<td>网络</td>
+<td>有线静态 IP + WiFi 静态 IP 双通道（互为备份管理入口）</td>
+</tr>
+<tr>
+<td>蓝牙</td>
+<td>RTL8822CE，BLE 被动扫描可用</td>
+</tr>
+<tr>
+<td>备份</td>
+<td>每周日 04:00 自动打包 <code>/config</code>，保留 14 天</td>
+</tr>
+<tr>
+<td>内核</td>
+<td>已 <code>apt-mark hold</code>，避免滚动升级变砖</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-环境基线"><a href="#2-环境基线" class="headerlink" title="2. 环境基线"></a>2. 环境基线</h2><h3 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>规格</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>板卡</td>
+<td>FriendlyElec NanoPi R5C</td>
+</tr>
+<tr>
+<td>SoC</td>
+<td>Rockchip RK3568（4×Cortex-A55）</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>4 GB LPDDR4X（2 GB 版本也能跑，紧张些）</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>eMMC 32 GB（<code>/dev/mmcblk1</code>，根分区 29 G）</td>
+</tr>
+<tr>
+<td>网口</td>
+<td>2 × RJ45，其中 WAN 口为 RTL8125 2.5GbE</td>
+</tr>
+<tr>
+<td>无线</td>
+<td>RTL8822CE（WiFi 5 + BT 5.0 组合模块）</td>
+</tr>
+<tr>
+<td>其它</td>
+<td>无 HDMI，<strong>SSH 是唯一管理入口</strong>，务必先配好备用通道</td>
+</tr>
+</tbody></table>
+<h3 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Armbian_community 26.11.0-trunk.95 trixie</span><br><span class="line">Debian GNU/Linux 13 (trixie)</span><br><span class="line">Kernel 6.18.56-current-rockchip64</span><br><span class="line">aarch64 / PAGESIZE=4096</span><br><span class="line">Docker 29.9.1 / Docker Compose v5.6.0</span><br><span class="line">Home Assistant 2026.10.2 (ghcr.io/home-assistant/home-assistant:stable)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ <code>26.11.0-trunk</code> 是 Armbian 滚动开发版，内核更新频繁。完成部署后务必锁内核（见第 11 节）。</p>
+</blockquote>
+<h3 id="前置检查"><a href="#前置检查" class="headerlink" title="前置检查"></a>前置检查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -m                        <span class="comment"># 期望 aarch64</span></span><br><span class="line"><span class="built_in">cat</span> /etc/os-release             <span class="comment"># 期望 VERSION_ID=&quot;13&quot;</span></span><br><span class="line">free -h                         <span class="comment"># 建议 ≥2 GB</span></span><br><span class="line"><span class="built_in">df</span> -h /                         <span class="comment"># 建议 ≥8 GB 可用</span></span><br><span class="line">getconf PAGESIZE                <span class="comment"># 期望 4096</span></span><br><span class="line">timedatectl                     <span class="comment"># 时间必须已同步</span></span><br></pre></td></tr></table></figure>
+
+<p><code>PAGESIZE</code> 若为 16384&#x2F;65536，HA 容器需要额外加 <code>DISABLE_JEMALLOC=true</code>（见 7.3）。</p>
+<hr>
+<h2 id="3-目录与端口规划"><a href="#3-目录与端口规划" class="headerlink" title="3. 目录与端口规划"></a>3. 目录与端口规划</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/opt/homeassistant/</span><br><span class="line">├── compose.yaml          # 容器编排</span><br><span class="line">└── config/               # HA 配置、数据库、.storage（备份对象）</span><br><span class="line"></span><br><span class="line">/usr/local/sbin/ha-backup.sh        # 备份脚本</span><br><span class="line">/var/backups/homeassistant/         # 备份归档（建议改到外部存储）</span><br><span class="line">/etc/netplan/10-dhcp-all-interfaces.yaml   # 网络配置（含 WiFi）</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8123&#x2F;tcp</td>
+<td>Home Assistant Web</td>
+</tr>
+<tr>
+<td>22&#x2F;tcp</td>
+<td>SSH 管理</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-系统基础设置"><a href="#4-系统基础设置" class="headerlink" title="4. 系统基础设置"></a>4. 系统基础设置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 更新系统</span></span><br><span class="line">apt update &amp;&amp; apt full-upgrade -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 时区与时间同步（HA 的证书、定时任务都依赖正确时间）</span></span><br><span class="line">timedatectl set-timezone Asia/Shanghai</span><br><span class="line">systemctl <span class="built_in">enable</span> --now systemd-timesyncd</span><br><span class="line">timedatectl                      <span class="comment"># 确认 &quot;System clock synchronized: yes&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主机名</span></span><br><span class="line">hostnamectl set-hostname ha</span><br></pre></td></tr></table></figure>
+
+<p>精简（可选，省内存）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> --now bluetooth    <span class="comment"># 若确定不用蓝牙；本文后面会用到，故先别关</span></span><br></pre></td></tr></table></figure>
+
+<p>减少对 eMMC 的写入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status armbian-ramlog      <span class="comment"># Armbian 默认把日志放内存，确认 active</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-网络配置（systemd-networkd-netplan）"><a href="#5-网络配置（systemd-networkd-netplan）" class="headerlink" title="5. 网络配置（systemd-networkd + netplan）"></a>5. 网络配置（systemd-networkd + netplan）</h2><h3 id="5-1-先搞清楚是谁在管网络"><a href="#5-1-先搞清楚是谁在管网络" class="headerlink" title="5.1 先搞清楚是谁在管网络"></a>5.1 先搞清楚是谁在管网络</h3><p>新版 Armbian 没有 NetworkManager（<code>nmcli: command not found</code>），实际链路是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netplan  →  生成 /run/systemd/network/*.network  →  systemd-networkd 执行</span><br></pre></td></tr></table></figure>
+
+<p>确认方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /etc/systemd/network/00-armbian.network.readme</span><br><span class="line"><span class="comment"># 输出含 &quot;The systemd-networkd configuration is managed by Netplan&quot;</span></span><br><span class="line"><span class="built_in">ls</span> /etc/netplan/</span><br><span class="line"><span class="built_in">cat</span> /etc/netplan/*.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-关键坑：不要新建-netplan-文件"><a href="#5-2-关键坑：不要新建-netplan-文件" class="headerlink" title="5.2 关键坑：不要新建 netplan 文件"></a>5.2 关键坑：不要新建 netplan 文件</h3><p>Armbian 默认文件用 <code>match: name: &quot;e*&quot;</code> 一把抓所有以太网口。如果<strong>另建</strong>一个 <code>enP1p17s0</code> 的 yaml，netplan 会生成两个 <code>.network</code>，而 networkd 只认字典序第一个匹配文件（<code>all-eth-interfaces</code> 排在前面），结果是”改了不生效”。</p>
+<p>✅ 正确做法：<strong>直接改原来那个文件</strong>，把通配 match 换成显式网口。</p>
+<h3 id="5-3-修改为静态-IP"><a href="#5-3-修改为静态-IP" class="headerlink" title="5.3 修改为静态 IP"></a>5.3 修改为静态 IP</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">cp</span> /etc/netplan/10-dhcp-all-interfaces.yaml /root/netplan.bak</span><br></pre></td></tr></table></figure>
+
+<p>文件内容（先只做有线，WiFi 见 5.5）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">renderer:</span> <span class="string">networkd</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">enP1p17s0:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">accept-ra:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">addresses:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="number">192.168</span><span class="string">.*.30/24</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="number">192.168</span><span class="string">.*.1</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> [<span class="number">192.168</span><span class="string">.*.1</span>, <span class="number">223.5</span><span class="number">.5</span><span class="number">.5</span>]</span><br><span class="line">    <span class="attr">enP2p33s0:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br><span class="line">    <span class="attr">all-lan-interfaces:</span></span><br><span class="line">      <span class="attr">match:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">&quot;lan*&quot;</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br><span class="line">    <span class="attr">all-wan-interfaces:</span></span><br><span class="line">      <span class="attr">match:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">&quot;wan*&quot;</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> 600 /etc/netplan/10-dhcp-all-interfaces.yaml   <span class="comment"># 不设 600 netplan 会告警</span></span><br><span class="line">netplan try                                          <span class="comment"># 应用并等待确认，120 秒不确认自动回滚</span></span><br></pre></td></tr></table></figure>
+
+<p><code>netplan try</code> 提示 <code>Do you want to keep these settings?</code> 时，<strong>另开一个 SSH 窗口</strong>验证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ip -br a</span><br><span class="line">ip route | <span class="built_in">head</span> -3</span><br><span class="line">ping -c2 192.168.*.1</span><br><span class="line">resolvectl status enP1p17s0 | <span class="built_in">head</span> -10</span><br></pre></td></tr></table></figure>
+
+<p>确认无误回到原窗口按回车。回滚方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">cp</span> /root/netplan.bak /etc/netplan/10-dhcp-all-interfaces.yaml &amp;&amp; sudo netplan apply</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-验证要点"><a href="#5-4-验证要点" class="headerlink" title="5.4 验证要点"></a>5.4 验证要点</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">default via 192.168.*.1 dev enP1p17s0 proto static     ← 注意 proto static</span><br><span class="line">192.168.*.0/24 dev enP1p17s0 proto kernel scope link src 192.168.*.30</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-5-WiFi-备用管理通道（强烈建议）"><a href="#5-5-WiFi-备用管理通道（强烈建议）" class="headerlink" title="5.5 WiFi 备用管理通道（强烈建议）"></a>5.5 WiFi 备用管理通道（强烈建议）</h3><p>R5C 没有显示输出，有线配置一旦写错就彻底失联。给 <code>wlp1s0</code> 配一个静态 IP，并用 <code>metric 200</code> 让有线永远优先。</p>
+<p>前置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt install -y wpasupplicant rfkill</span><br><span class="line">rfkill unblock all</span><br><span class="line">iw dev            <span class="comment"># 确认 wlp1s0 存在</span></span><br></pre></td></tr></table></figure>
+
+<p>在同一个 netplan 文件末尾追加 <code>wifis</code> 段：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">wifis:</span></span><br><span class="line">  <span class="attr">wlp1s0:</span></span><br><span class="line">    <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">dhcp6:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">addresses:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">192.168</span><span class="string">.*.31/24</span></span><br><span class="line">    <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">        <span class="attr">via:</span> <span class="number">192.168</span><span class="string">.*.1</span></span><br><span class="line">        <span class="attr">metric:</span> <span class="number">200</span></span><br><span class="line">    <span class="attr">nameservers:</span></span><br><span class="line">      <span class="attr">addresses:</span> [<span class="number">192.168</span><span class="string">.*.1</span>, <span class="number">223.5</span><span class="number">.5</span><span class="number">.5</span>]</span><br><span class="line">    <span class="attr">access-points:</span></span><br><span class="line">      <span class="string">&#x27;你的SSID&#x27;</span><span class="string">:</span></span><br><span class="line">        <span class="attr">password:</span> <span class="string">&#x27;你的密码&#x27;</span></span><br><span class="line">    <span class="attr">optional:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>安全的启用流程（防止两端同时失联）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 确认目标 IP 空闲</span></span><br><span class="line">ping -c1 -W1 192.168.*.31 &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;被占用，换一个&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 先只做语法校验</span></span><br><span class="line">netplan generate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 挂 180 秒自动回滚</span></span><br><span class="line">systemd-run --on-active=180 --unit=netplan-rollback \</span><br><span class="line">  sh -c <span class="string">&quot;cp /root/netplan.bak /etc/netplan/10-dhcp-all-interfaces.yaml &amp;&amp; netplan apply&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 应用并验证</span></span><br><span class="line">netplan apply &amp;&amp; <span class="built_in">sleep</span> 20</span><br><span class="line">ip -br a show wlp1s0</span><br><span class="line">iw dev wlp1s0 <span class="built_in">link</span>            <span class="comment"># 期望 Connected to ... / SSID / freq</span></span><br><span class="line">ping -c2 -I 192.168.*.31 192.168.*.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 成功则取消回滚</span></span><br><span class="line">systemctl stop netplan-rollback.timer &amp;&amp; systemctl reset-failed netplan-rollback.service</span><br></pre></td></tr></table></figure>
+
+<p>实测结果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">wlp1s0  UP  192.168.*.31/24</span><br><span class="line">Connected to **:**:**:**:**:**</span><br><span class="line">        SSID: **</span><br><span class="line">        freq: 5200.0</span><br><span class="line">        signal: -30 dBm</span><br><span class="line"></span><br><span class="line">default via 192.168.*.1 dev enP1p17s0 proto static                 ← 有线优先</span><br><span class="line">default via 192.168.*.1 dev wlp1s0 proto static metric 200         ← WiFi 备用</span><br></pre></td></tr></table></figure>
+
+<p>验证备用通道确实能独立登录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.*.31 <span class="string">&#x27;hostname; iw dev wlp1s0 link | head -3&#x27;</span></span><br><span class="line">curl -s -o /dev/null -w <span class="string">&#x27;%&#123;http_code&#125;\n&#x27;</span> http://192.168.*.31:8123/</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-安装-Docker（国内网络版）"><a href="#6-安装-Docker（国内网络版）" class="headerlink" title="6. 安装 Docker（国内网络版）"></a>6. 安装 Docker（国内网络版）</h2><h3 id="6-1-官方脚本会失败"><a href="#6-1-官方脚本会失败" class="headerlink" title="6.1 官方脚本会失败"></a>6.1 官方脚本会失败</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL https://get.docker.com | sh</span><br><span class="line"><span class="comment"># curl: (35) Recv failure: Connection reset by peer   ← download.docker.com 不可达</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-改用国内镜像源"><a href="#6-2-改用国内镜像源" class="headerlink" title="6.2 改用国内镜像源"></a>6.2 改用国内镜像源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -f /etc/apt/keyrings/docker.asc /etc/apt/sources.list.d/docker.list</span><br><span class="line"></span><br><span class="line">apt install -y ca-certificates curl</span><br><span class="line">install -m 0755 -d /etc/apt/keyrings</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清华源，失败自动退阿里云</span></span><br><span class="line">curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian/gpg \</span><br><span class="line">  -o /etc/apt/keyrings/docker.asc \</span><br><span class="line">|| curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/debian/gpg \</span><br><span class="line">  -o /etc/apt/keyrings/docker.asc</span><br><span class="line"><span class="built_in">chmod</span> a+r /etc/apt/keyrings/docker.asc</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian trixie stable&quot;</span> \</span><br><span class="line">  &gt; /etc/apt/sources.list.d/docker.list</span><br><span class="line"></span><br><span class="line">apt update</span><br><span class="line">apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>若镜像源的 <code>trixie</code> 套件尚未同步（<code>Release</code> 找不到），把 <code>trixie</code> 改成 <code>bookworm</code> 再用，Debian 13 上运行正常。</p>
+</blockquote>
+<h3 id="6-3-完全连不上镜像源时的退路"><a href="#6-3-完全连不上镜像源时的退路" class="headerlink" title="6.3 完全连不上镜像源时的退路"></a>6.3 完全连不上镜像源时的退路</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install -y docker.io docker-compose</span><br></pre></td></tr></table></figure>
+
+<p>代价：compose 为旧版，命令是 <code>docker-compose</code> 而非 <code>docker compose</code>。</p>
+<h3 id="6-4-限制日志大小（保护-eMMC）"><a href="#6-4-限制日志大小（保护-eMMC）" class="headerlink" title="6.4 限制日志大小（保护 eMMC）"></a>6.4 限制日志大小（保护 eMMC）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/docker</span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/docker/daemon.json &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;log-driver&quot;</span>: <span class="string">&quot;json-file&quot;</span>,</span><br><span class="line">  <span class="string">&quot;log-opts&quot;</span>: &#123; <span class="string">&quot;max-size&quot;</span>: <span class="string">&quot;10m&quot;</span>, <span class="string">&quot;max-file&quot;</span>: <span class="string">&quot;3&quot;</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>可选：给 Docker Hub 配加速（后面装 Mosquitto &#x2F; Zigbee2MQTT 时会用到）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/docker/daemon.json &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;log-driver&quot;</span>: <span class="string">&quot;json-file&quot;</span>,</span><br><span class="line">  <span class="string">&quot;log-opts&quot;</span>: &#123; <span class="string">&quot;max-size&quot;</span>: <span class="string">&quot;10m&quot;</span>, <span class="string">&quot;max-file&quot;</span>: <span class="string">&quot;3&quot;</span> &#125;,</span><br><span class="line">  <span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://docker.m.daocloud.io&quot;</span>, <span class="string">&quot;https://docker.1ms.run&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-5-验证"><a href="#6-5-验证" class="headerlink" title="6.5 验证"></a>6.5 验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> --now docker</span><br><span class="line">docker version --format <span class="string">&#x27;Docker &#123;&#123;.Server.Version&#125;&#125;&#x27;</span></span><br><span class="line">docker compose version</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>国内 <code>docker run --rm hello-world</code> 大概率超时（Docker Hub 不可达），<strong>这一步失败不代表 Docker 装坏了</strong>，直接进第 7 节用镜像站拉 HA。</p>
+</blockquote>
+<hr>
+<h2 id="7-部署-Home-Assistant-Container"><a href="#7-部署-Home-Assistant-Container" class="headerlink" title="7. 部署 Home Assistant Container"></a>7. 部署 Home Assistant Container</h2><h3 id="7-1-目录与-compose-文件"><a href="#7-1-目录与-compose-文件" class="headerlink" title="7.1 目录与 compose 文件"></a>7.1 目录与 compose 文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /opt/homeassistant &amp;&amp; <span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; compose.yaml &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">services:</span><br><span class="line">  homeassistant:</span><br><span class="line">    container_name: homeassistant</span><br><span class="line">    image: ghcr.io/home-assistant/home-assistant:stable</span><br><span class="line">    volumes:</span><br><span class="line">      - ./config:/config</span><br><span class="line">      - /etc/localtime:/etc/localtime:ro</span><br><span class="line">      - /run/dbus:/run/dbus:ro</span><br><span class="line">    restart: unless-stopped</span><br><span class="line">    stop_grace_period: 60s</span><br><span class="line">    privileged: <span class="literal">true</span></span><br><span class="line">    cap_add:</span><br><span class="line">      - NET_ADMIN</span><br><span class="line">      - NET_RAW</span><br><span class="line">    network_mode: host</span><br><span class="line">    environment:</span><br><span class="line">      TZ: Asia/Shanghai</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>逐项说明：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>作用</th>
+<th>能否省略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>network_mode: host</code></td>
+<td>设备发现（mDNS&#x2F;SSDP）、HomeKit 必需</td>
+<td>❌ 不能</td>
+</tr>
+<tr>
+<td><code>privileged: true</code></td>
+<td>硬件访问（蓝牙、USB）</td>
+<td>建议保留</td>
+</tr>
+<tr>
+<td><code>cap_add: NET_ADMIN/NET_RAW</code></td>
+<td>蓝牙 BLE 扫描必需，实测仅 <code>privileged</code> 不够</td>
+<td>❌ 用蓝牙就必须</td>
+</tr>
+<tr>
+<td><code>/run/dbus</code></td>
+<td>通过 D-Bus 与主机 BlueZ 通信</td>
+<td>用蓝牙就必须</td>
+</tr>
+<tr>
+<td><code>/etc/localtime</code></td>
+<td>容器内时区正确</td>
+<td>建议</td>
+</tr>
+<tr>
+<td><code>stop_grace_period: 60s</code></td>
+<td>让 HA 干净关闭 sqlite，默认 10s 会写坏库</td>
+<td>强烈建议</td>
+</tr>
+<tr>
+<td><code>TZ</code></td>
+<td>时区</td>
+<td>建议</td>
+</tr>
+</tbody></table>
+<h3 id="7-2-拉取镜像（ghcr-io-不可达时）"><a href="#7-2-拉取镜像（ghcr-io-不可达时）" class="headerlink" title="7.2 拉取镜像（ghcr.io 不可达时）"></a>7.2 拉取镜像（ghcr.io 不可达时）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 南京大学 ghcr 镜像</span></span><br><span class="line">docker pull ghcr.nju.edu.cn/home-assistant/home-assistant:stable</span><br><span class="line">docker tag ghcr.nju.edu.cn/home-assistant/home-assistant:stable \</span><br><span class="line">           ghcr.io/home-assistant/home-assistant:stable</span><br><span class="line">docker images | grep home-assistant</span><br></pre></td></tr></table></figure>
+
+<p>关键：<strong>最后必须 <code>docker tag</code> 成 <code>ghcr.io/...</code></strong>，否则 compose 仍会去连官方源。</p>
+<p>备用镜像站（拉完同样要 retag）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.m.daocloud.io/ghcr.io/home-assistant/home-assistant:stable</span><br><span class="line">docker pull ghcr.dockerproxy.net/home-assistant/home-assistant:stable</span><br><span class="line">docker pull docker.1ms.run/ghcr.io/home-assistant/home-assistant:stable</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-启动"><a href="#7-3-启动" class="headerlink" title="7.3 启动"></a>7.3 启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line">docker compose up -d</span><br><span class="line"><span class="built_in">sleep</span> 10</span><br><span class="line">docker compose ps</span><br><span class="line">docker compose logs -f --<span class="built_in">tail</span>=50</span><br></pre></td></tr></table></figure>
+
+<p>首次启动 1~2 分钟（RK3568 上初始化数据库偏慢）。看到以下行即成功：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Home Assistant initialized in X.XXs</span><br><span class="line">INFO: Starting Home Assistant HTTP server on 0.0.0.0:8123</span><br></pre></td></tr></table></figure>
+
+<p>若日志出现 <code>&lt;jemalloc&gt;: Unsupported system page size</code>（16K&#x2F;64K 页内核），在 <code>environment</code> 加：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">DISABLE_JEMALLOC:</span> <span class="string">&quot;true&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="8-验证与初始化"><a href="#8-验证与初始化" class="headerlink" title="8. 验证与初始化"></a>8. 验证与初始化</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -s -o /dev/null -w <span class="string">&#x27;%&#123;http_code&#125;\n&#x27;</span> http://127.0.0.1:8123/    <span class="comment"># 期望 302 或 200</span></span><br><span class="line">docker stats --no-stream homeassistant</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ <code>curl -I</code>（HEAD 请求）会返回 <strong>405 Method Not Allowed</strong>，这是正常的——HA 只接受 GET，不是故障。</p>
+</blockquote>
+<p>浏览器打开 <code>http://192.168.*.30:8123</code>，初始化建议：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>建议值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>账号密码</td>
+<td>强密码并存入密码管理器（忘记只能删 <code>config/.storage/auth</code>）</td>
+</tr>
+<tr>
+<td>位置</td>
+<td>真实城市（影响日出日落）</td>
+</tr>
+<tr>
+<td>时区</td>
+<td><code>Asia/Shanghai</code></td>
+</tr>
+<tr>
+<td>单位</td>
+<td>公制</td>
+</tr>
+<tr>
+<td>货币</td>
+<td>CNY</td>
+</tr>
+<tr>
+<td>设备发现</td>
+<td>开启</td>
+</tr>
+</tbody></table>
+<p>初始化后在「设置 → 系统 → 关于」确认：安装类型 <code>Home Assistant Container</code>，架构 <code>aarch64</code>。</p>
+<p>资源占用基线（RK3568 + 4GB）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">内存 400~760 MB</span><br><span class="line">CPU 空闲 3~8%</span><br><span class="line">SoC 温度 43~46 °C</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9-蓝牙支持"><a href="#9-蓝牙支持" class="headerlink" title="9. 蓝牙支持"></a>9. 蓝牙支持</h2><h3 id="9-1-先装-BlueZ（容器版必须）"><a href="#9-1-先装-BlueZ（容器版必须）" class="headerlink" title="9.1 先装 BlueZ（容器版必须）"></a>9.1 先装 BlueZ（容器版必须）</h3><p>容器本身没有蓝牙服务，必须借主机的 BlueZ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt install -y bluez</span><br><span class="line">systemctl <span class="built_in">enable</span> --now bluetooth</span><br><span class="line"></span><br><span class="line">bluetoothctl list        <span class="comment"># 期望：Controller **:**:**:**:**:** ha [default]</span></span><br><span class="line">dmesg | grep -i -E <span class="string">&#x27;btusb|rtl_bt&#x27;</span> | <span class="built_in">tail</span> -10</span><br></pre></td></tr></table></figure>
+
+<p>正常输出示例：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">usbcore: registered new interface driver btusb</span><br><span class="line">Bluetooth: hci0: RTL: loading rtl_bt/rtl8822cu_fw.bin</span><br><span class="line">Bluetooth: hci0: RTL: loading rtl_bt/rtl8822cu_config.bin</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-权限：privileged-不够，必须显式-cap-add"><a href="#9-2-权限：privileged-不够，必须显式-cap-add" class="headerlink" title="9.2 权限：privileged 不够，必须显式 cap_add"></a>9.2 权限：privileged 不够，必须显式 cap_add</h3><p>只设 <code>privileged: true</code> 时 HA 仍会报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ERROR (MainThread) [habluetooth.manager] Missing required permissions for Bluetooth management.</span><br><span class="line">PermissionError: Missing NET_ADMIN/NET_RAW capabilities for Bluetooth management</span><br></pre></td></tr></table></figure>
+
+<p>加上：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">cap_add:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">NET_ADMIN</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">NET_RAW</span></span><br></pre></td></tr></table></figure>
+
+<p>重建并验证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker compose up -d</span><br><span class="line">docker <span class="built_in">exec</span> homeassistant grep CapEff /proc/self/status     <span class="comment"># 期望 000001ffffffffff</span></span><br><span class="line">docker compose logs --<span class="built_in">tail</span>=60 | grep -i bluetooth            <span class="comment"># 期望无输出（无报错）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="9-3-验证扫描"><a href="#9-3-验证扫描" class="headerlink" title="9.3 验证扫描"></a>9.3 验证扫描</h3><p>主机侧：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bluetoothctl --<span class="built_in">timeout</span> 10 scan on</span><br><span class="line"><span class="comment"># 期望滚出 [NEW] Device XX:XX:... 以及 RSSI 变化</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>主机正在扫描时，HA 侧可能暂时拿不到数据（同一适配器只能有一个发现过程），测完记得退出。</p>
+</blockquote>
+<h3 id="9-4-三个常见误解"><a href="#9-4-三个常见误解" class="headerlink" title="9.4 三个常见误解"></a>9.4 三个常见误解</h3><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>真相</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>手机在系统蓝牙里<strong>连不上</strong>这块板子</td>
+<td>正常。板子没暴露 A2DP&#x2F;HID&#x2F;PAN 服务，手机配对必然失败。HA 只用 BLE 被动扫描，从不”连接”手机</td>
+</tr>
+<tr>
+<td>添加集成时提示”<strong>未找到未配置的蓝牙适配器</strong>“</td>
+<td>正常。HA 启动时已通过 <code>integration_discovery</code> <strong>自动创建</strong>了条目，去「设备与服务」页面找现成的 Bluetooth 卡片即可</td>
+</tr>
+<tr>
+<td>日志里 <code>BleakDBusError: No discovery started</code></td>
+<td>无害。容器重启时要停一个本来没在跑的扫描，每台容器版 HA 重启都会出现</td>
+</tr>
+</tbody></table>
+<h3 id="9-5-确认条目已存在"><a href="#9-5-确认条目已存在" class="headerlink" title="9.5 确认条目已存在"></a>9.5 确认条目已存在</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -o <span class="string">&#x27;&quot;domain&quot;:&quot;[a-z_]*&quot;&#x27;</span> /opt/homeassistant/config/.storage/core.config_entries | <span class="built_in">sort</span> | <span class="built_in">uniq</span> -c</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ HA 写的是<strong>紧凑 JSON</strong>（<code>&quot;domain&quot;:&quot;bluetooth&quot;</code>，冒号后无空格）。用 <code>grep &#39;&quot;domain&quot;: &quot;bluetooth&quot;&#39;</code> 会得到 0，是假阴性。</p>
+</blockquote>
+<p>Python 查看详情：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">python3 - &lt;&lt;<span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import json</span><br><span class="line">d = json.load(open(<span class="string">&#x27;/opt/homeassistant/config/.storage/core.config_entries&#x27;</span>))</span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> d[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;entries&#x27;</span>]:</span><br><span class="line">    <span class="keyword">if</span> e.get(<span class="string">&#x27;domain&#x27;</span>) == <span class="string">&#x27;bluetooth&#x27;</span>:</span><br><span class="line">        <span class="built_in">print</span>(e[<span class="string">&#x27;entry_id&#x27;</span>], e[<span class="string">&#x27;source&#x27;</span>], e[<span class="string">&#x27;title&#x27;</span>])</span><br><span class="line">PY</span><br></pre></td></tr></table></figure>
+
+<p>实测输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**************************  integration_discovery  ********  Technology Co.,Ltd None (**:**:**:**:**:**)</span><br></pre></td></tr></table></figure>
+
+<p><code>title</code> 里的厂商名和 <code>None</code> 来自模块上报信息，不是错误。</p>
+<h3 id="9-6-改适配器显示名（可选）"><a href="#9-6-改适配器显示名（可选）" class="headerlink" title="9.6 改适配器显示名（可选）"></a>9.6 改适配器显示名（可选）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;PRETTY_HOSTNAME=ha&#x27;</span> &gt;&gt; /etc/machine-info</span><br><span class="line">systemctl restart bluetooth</span><br><span class="line">bluetoothctl show | <span class="built_in">head</span> -4</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-备份策略"><a href="#10-备份策略" class="headerlink" title="10. 备份策略"></a>10. 备份策略</h2><h3 id="10-1-为什么必须停容器"><a href="#10-1-为什么必须停容器" class="headerlink" title="10.1 为什么必须停容器"></a>10.1 为什么必须停容器</h3><p>HA 用 SQLite（<code>config/home-assistant_v2.db</code>）。运行中直接 <code>tar</code> 会拷到不一致的数据库文件。正确做法只有两种：</p>
+<ol>
+<li><strong>停容器再打包</strong>（本文采用，简单可靠）</li>
+<li><code>sqlite3 ... &quot;.backup&quot;</code> 在线备份（麻烦，一般不必）</li>
+</ol>
+<h3 id="10-2-备份脚本"><a href="#10-2-备份脚本" class="headerlink" title="10.2 备份脚本"></a>10.2 备份脚本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /usr/local/sbin/ha-backup.sh &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/usr/bin/env bash</span></span><br><span class="line"><span class="built_in">set</span> -euo pipefail</span><br><span class="line">DEST=/var/backups/homeassistant</span><br><span class="line">KEEP_DAYS=14</span><br><span class="line">STAMP=$(<span class="built_in">date</span> +%Y%m%d-%H%M)</span><br><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="string">&quot;<span class="variable">$DEST</span>&quot;</span></span><br><span class="line"></span><br><span class="line">docker compose stop</span><br><span class="line"><span class="keyword">if</span> ! tar --numeric-owner -czf <span class="string">&quot;<span class="variable">$DEST</span>/ha-config-<span class="variable">$STAMP</span>.tar.gz&quot;</span> config; <span class="keyword">then</span></span><br><span class="line">  docker compose start</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;tar failed&quot;</span> &gt;&amp;2</span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">docker compose start</span><br><span class="line"></span><br><span class="line">find <span class="string">&quot;<span class="variable">$DEST</span>&quot;</span> -name <span class="string">&#x27;ha-config-*.tar.gz&#x27;</span> -mtime +<span class="string">&quot;<span class="variable">$KEEP_DAYS</span>&quot;</span> -delete</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%F %T&#x27;)</span> ok: <span class="variable">$DEST</span>/ha-config-<span class="variable">$STAMP</span>.tar.gz&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">chmod</span> 755 /usr/local/sbin/ha-backup.sh</span><br><span class="line">/usr/local/sbin/ha-backup.sh</span><br><span class="line"><span class="built_in">ls</span> -lh /var/backups/homeassistant/</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-3-验证归档完整性"><a href="#10-3-验证归档完整性" class="headerlink" title="10.3 验证归档完整性"></a>10.3 验证归档完整性</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LAST=$(<span class="built_in">ls</span> -t /var/backups/homeassistant/ha-config-*.tar.gz | <span class="built_in">head</span> -1)</span><br><span class="line">tar tzf <span class="string">&quot;<span class="variable">$LAST</span>&quot;</span> &gt; /tmp/list.txt</span><br><span class="line">grep -E <span class="string">&#x27;config/configuration\.yaml$|config/\.storage/core\.config_entries$|config/home-assistant_v2\.db$&#x27;</span> /tmp/list.txt</span><br></pre></td></tr></table></figure>
+
+<p>三个文件都在，才说明备份有效。</p>
+<blockquote>
+<p>小坑：不要用 <code>tar tzf ... | head -5</code> 做检查。<code>set -o pipefail</code> 下 <code>head</code> 提前关闭管道会让 tar 收到 SIGPIPE，脚本会误判失败。</p>
+</blockquote>
+<h3 id="10-4-定时任务"><a href="#10-4-定时任务" class="headerlink" title="10.4 定时任务"></a>10.4 定时任务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl is-active cron || apt install -y cron</span><br><span class="line">( crontab -l 2&gt;/dev/null; <span class="built_in">echo</span> <span class="string">&#x27;0 4 * * 0 /usr/local/sbin/ha-backup.sh &gt;&gt; /var/log/ha-backup.log 2&gt;&amp;1&#x27;</span> ) | crontab -</span><br><span class="line">crontab -l</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-5-必须离机"><a href="#10-5-必须离机" class="headerlink" title="10.5 必须离机"></a>10.5 必须离机</h3><p><code>/var/backups</code> 与系统在同一块 eMMC 上，盘坏了会一起丢。二选一：</p>
+<ul>
+<li>有 NAS：把脚本里 <code>DEST</code> 改成挂载点，如 <code>/mnt/nas/ha</code></li>
+<li>没 NAS：电脑上定时 <code>scp</code> 拉走，或用 <code>rclone</code> 推到网盘</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Windows 端示例（任务计划）</span></span><br><span class="line">scp <span class="literal">-r</span> root@<span class="number">192.168</span>.*.<span class="number">30</span>:/var/backups/homeassistant/*.tar.gz D:\ha<span class="literal">-backup</span>\</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-6-恢复流程"><a href="#10-6-恢复流程" class="headerlink" title="10.6 恢复流程"></a>10.6 恢复流程</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line">docker compose stop</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p /tmp/restore</span><br><span class="line">tar xzf /var/backups/homeassistant/ha-config-YYYYMMDD-HHMM.tar.gz -C /tmp/restore</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保留原目录以便回退</span></span><br><span class="line"><span class="built_in">mv</span> config config.broken</span><br><span class="line"><span class="built_in">cp</span> -a /tmp/restore/config config</span><br><span class="line"></span><br><span class="line">docker compose start</span><br><span class="line">docker compose logs -f --<span class="built_in">tail</span>=100</span><br></pre></td></tr></table></figure>
+
+<p>另外在 HA 界面开启内置备份：「设置 → 系统 → 备份 → 自动备份」，保留 3~5 份，与整目录打包互为补充。</p>
+<hr>
+<h2 id="11-锁定内核"><a href="#11-锁定内核" class="headerlink" title="11. 锁定内核"></a>11. 锁定内核</h2><p>滚动版 <code>full-upgrade</code> 可能升级内核&#x2F;u-boot，导致网卡驱动异常或无法启动；板子没有显示输出，很难现场救。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg -l | awk <span class="string">&#x27;/^ii/ &amp;&amp; $2 ~ /^linux-(image|dtb|u-boot)/ &#123;print $2&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>实测输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">linux-dtb-current-rockchip64</span><br><span class="line">linux-image-current-rockchip64</span><br><span class="line">linux-u-boot-nanopi-r5c-current</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt-mark hold linux-dtb-current-rockchip64 linux-image-current-rockchip64 linux-u-boot-nanopi-r5c-current</span><br><span class="line">apt-mark showhold</span><br><span class="line"><span class="built_in">uname</span> -r        <span class="comment"># 记录当前版本，例如 6.18.56-current-rockchip64</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>取舍</strong>：kernel 的安全更新也不会自动装。内网 HA 可接受，换来的是不会因内核升级变砖。</p>
+<p>需要升级时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/sbin/ha-backup.sh</span><br><span class="line">apt-mark unhold linux-image-current-rockchip64 linux-dtb-current-rockchip64</span><br><span class="line">apt full-upgrade</span><br><span class="line">reboot</span><br><span class="line"><span class="comment"># 确认正常后再 hold 回去</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="12-HACS"><a href="#12-HACS" class="headerlink" title="12. HACS"></a>12. HACS</h2><h3 id="12-1-安装"><a href="#12-1-安装" class="headerlink" title="12.1 安装"></a>12.1 安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">apt install -y unzip</span><br><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">curl -fsSL -o hacs.zip https://github.com/hacs/integration/releases/latest/download/hacs.zip</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p /opt/homeassistant/config/custom_components/hacs</span><br><span class="line">unzip -q -o hacs.zip -d /opt/homeassistant/config/custom_components/hacs</span><br><span class="line"></span><br><span class="line">grep -o <span class="string">&#x27;&quot;version&quot;: *&quot;[^&quot;]*&quot;&#x27;</span> /opt/homeassistant/config/custom_components/hacs/manifest.json</span><br><span class="line"><span class="built_in">cd</span> /opt/homeassistant &amp;&amp; docker compose restart</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ 关键坑：官方 zip <strong>没有 <code>hacs/</code> 这一层目录</strong>，文件直接在根。直接 <code>unzip -d custom_components</code> 会把 <code>base.py</code>、<code>config_flow.py</code> 等撒在 <code>custom_components/</code> 根下，HA 找不到集成。必须先 <code>mkdir .../custom_components/hacs</code> 再解压进去。</p>
+</blockquote>
+<h3 id="12-2-验证"><a href="#12-2-验证" class="headerlink" title="12.2 验证"></a>12.2 验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose logs --<span class="built_in">tail</span>=200 | grep -i hacs</span><br></pre></td></tr></table></figure>
+
+<p>看到下面这条是<strong>正常的</strong>（所有自定义集成都会打）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration hacs which has not been tested by Home Assistant...</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-3-UI-授权"><a href="#12-3-UI-授权" class="headerlink" title="12.3 UI 授权"></a>12.3 UI 授权</h3><ol>
+<li>设置 → 设备与服务 → 添加集成</li>
+<li>搜索 <strong>HACS</strong> → 勾选 4 项 → 提交</li>
+<li>页面显示 8 位设备码</li>
+<li>打开 <a target="_blank" rel="noopener" href="https://github.com/login/device">https://github.com/login/device</a> 输入授权（手机流量也行）</li>
+<li>左侧边栏出现 HACS</li>
+</ol>
+<hr>
+<h2 id="13-故障排查速查表"><a href="#13-故障排查速查表" class="headerlink" title="13. 故障排查速查表"></a>13. 故障排查速查表</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>curl -I http://ip:8123</code> 返回 405</td>
+<td>HA 不接受 HEAD</td>
+<td>正常，改用 <code>curl -s -o /dev/null -w &#39;%{http_code}&#39;</code></td>
+</tr>
+<tr>
+<td>容器反复重启，日志 <code>Unsupported system page size</code></td>
+<td>16K&#x2F;64K 页内核</td>
+<td>加 <code>DISABLE_JEMALLOC: &quot;true&quot;</code></td>
+</tr>
+<tr>
+<td><code>Error binding to 0.0.0.0:8123 [Errno 98]</code></td>
+<td>端口被占</td>
+<td><code>ss -tlnp | grep 8123</code></td>
+</tr>
+<tr>
+<td>容器 Up 但 8123 不通</td>
+<td>防火墙拦截</td>
+<td><code>nft list ruleset | head -30</code></td>
+</tr>
+<tr>
+<td><code>docker pull ghcr.io/...</code> 卡死</td>
+<td>ghcr 不可达</td>
+<td>用 <code>ghcr.nju.edu.cn</code> 拉 + <code>docker tag</code> 改回官方名</td>
+</tr>
+<tr>
+<td><code>docker run hello-world</code> 超时</td>
+<td>Docker Hub 不可达</td>
+<td>不影响 HA，忽略或配 registry-mirrors</td>
+</tr>
+<tr>
+<td>蓝牙 <code>Missing NET_ADMIN/NET_RAW</code></td>
+<td>缺 capabilities</td>
+<td><code>cap_add: [NET_ADMIN, NET_RAW]</code></td>
+</tr>
+<tr>
+<td>添加蓝牙集成提示”未找到未配置的适配器”</td>
+<td>已有自动创建的条目</td>
+<td>去「设备与服务」找现成卡片</td>
+</tr>
+<tr>
+<td><code>BleakDBusError: No discovery started</code></td>
+<td>重启时的无害报错</td>
+<td>忽略</td>
+</tr>
+<tr>
+<td>改 netplan 后没生效</td>
+<td>新建了同名匹配的第二个文件</td>
+<td>只改原文件，别新增</td>
+</tr>
+<tr>
+<td><code>netplan apply</code> 报权限告警</td>
+<td>配置文件不是 600</td>
+<td><code>chmod 600 /etc/netplan/*.yaml</code></td>
+</tr>
+<tr>
+<td>备份脚本中途退出、无 cron</td>
+<td><code>pipefail</code> + <code>tar | head</code> 触发 SIGPIPE</td>
+<td>检查时先写文件再 grep</td>
+</tr>
+<tr>
+<td>HACS 装完 HA 里没有</td>
+<td>zip 无顶层目录，文件散落</td>
+<td>先 <code>mkdir hacs</code> 再解压</td>
+</tr>
+<tr>
+<td><code>docker compose</code> 命令不存在</td>
+<td>用的是 Debian 仓库版</td>
+<td>用 <code>docker-compose</code>，或换 docker-ce 源</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="14-日常维护"><a href="#14-日常维护" class="headerlink" title="14. 日常维护"></a>14. 日常维护</h2><h3 id="升级-HA"><a href="#升级-HA" class="headerlink" title="升级 HA"></a>升级 HA</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/sbin/ha-backup.sh</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line">docker pull ghcr.nju.edu.cn/home-assistant/home-assistant:stable</span><br><span class="line">docker tag ghcr.nju.edu.cn/home-assistant/home-assistant:stable \</span><br><span class="line">           ghcr.io/home-assistant/home-assistant:stable</span><br><span class="line">docker compose up -d</span><br><span class="line">docker compose logs -f --<span class="built_in">tail</span>=80</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line"></span><br><span class="line">docker compose ps                      <span class="comment"># 状态</span></span><br><span class="line">docker compose logs -f --<span class="built_in">tail</span>=100      <span class="comment"># 日志</span></span><br><span class="line">docker compose restart                 <span class="comment"># 重启</span></span><br><span class="line">docker stats --no-stream               <span class="comment"># 资源占用</span></span><br><span class="line">curl -s -o /dev/null -w <span class="string">&#x27;%&#123;http_code&#125;\n&#x27;</span> http://127.0.0.1:8123/</span><br><span class="line"></span><br><span class="line">docker <span class="built_in">exec</span> homeassistant <span class="built_in">ls</span> /config/custom_components/   <span class="comment"># 自定义集成</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="系统健康"><a href="#系统健康" class="headerlink" title="系统健康"></a>系统健康</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uptime</span>; free -h; <span class="built_in">df</span> -h /</span><br><span class="line">awk <span class="string">&#x27;&#123;printf &quot;%.1f C\n&quot;, $1/1000&#125;&#x27;</span> /sys/class/thermal/thermal_zone0/temp</span><br><span class="line">systemctl --failed</span><br></pre></td></tr></table></figure>
+
+<h3 id="无附加组件商店时的替代方案"><a href="#无附加组件商店时的替代方案" class="headerlink" title="无附加组件商店时的替代方案"></a>无附加组件商店时的替代方案</h3><table>
+<thead>
+<tr>
+<th>附加组件</th>
+<th>等价容器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mosquitto broker</td>
+<td><code>eclipse-mosquitto:2</code></td>
+</tr>
+<tr>
+<td>Zigbee2MQTT</td>
+<td><code>ghcr.io/koenkk/zigbee2mqtt</code></td>
+</tr>
+<tr>
+<td>Z-Wave JS</td>
+<td><code>zwavejs/zwave-js-ui</code></td>
+</tr>
+<tr>
+<td>ESPHome</td>
+<td><code>ghcr.io/esphome/esphome</code></td>
+</tr>
+<tr>
+<td>Matter Server</td>
+<td><code>ghcr.io/home-assistant-libs/python-matter-server</code></td>
+</tr>
+<tr>
+<td>Node-RED</td>
+<td><code>nodered/node-red</code></td>
+</tr>
+</tbody></table>
+<p>把它们追加到同一个 <code>compose.yaml</code>，用 <code>depends_on</code> 串起来即可。代价是要自己维护升级与集成配置。</p>
+<hr>
+<h2 id="15-安全检查清单"><a href="#15-安全检查清单" class="headerlink" title="15. 安全检查清单"></a>15. 安全检查清单</h2><ul>
+<li><input disabled="" type="checkbox"> HA 使用强密码，且已存入密码管理器</li>
+<li><input disabled="" type="checkbox"> 8123 端口<strong>未</strong>映射到公网（外网访问走 HA Cloud &#x2F; Tailscale &#x2F; WireGuard）</li>
+<li><input disabled="" type="checkbox"> SSH 已改用密钥登录，并考虑 <code>PasswordAuthentication no</code></li>
+<li><input disabled="" type="checkbox"> 备份有一份离开本机（NAS &#x2F; 电脑 &#x2F; 网盘）</li>
+<li><input disabled="" type="checkbox"> 已 <code>apt-mark hold</code> 内核三件套</li>
+<li><input disabled="" type="checkbox"> 记录关键信息：IP、SSH 端口、备份路径、内核版本、WiFi SSID</li>
+<li><input disabled="" type="checkbox"> 若临时授权过他人的 SSH 公钥，事后清理：<br><code>sed -i &#39;/&lt;备注&gt;/d&#39; /root/.ssh/authorized_keys</code></li>
+</ul>
+<hr>
+<h2 id="16-附录：最终配置文件"><a href="#16-附录：最终配置文件" class="headerlink" title="16. 附录：最终配置文件"></a>16. 附录：最终配置文件</h2><h3 id="A-opt-homeassistant-compose-yaml"><a href="#A-opt-homeassistant-compose-yaml" class="headerlink" title="A. /opt/homeassistant/compose.yaml"></a>A. <code>/opt/homeassistant/compose.yaml</code></h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">homeassistant:</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">homeassistant</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">ghcr.io/home-assistant/home-assistant:stable</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./config:/config</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/etc/localtime:/etc/localtime:ro</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/run/dbus:/run/dbus:ro</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">unless-stopped</span></span><br><span class="line">    <span class="attr">stop_grace_period:</span> <span class="string">60s</span></span><br><span class="line">    <span class="attr">privileged:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">cap_add:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">NET_ADMIN</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">NET_RAW</span></span><br><span class="line">    <span class="attr">network_mode:</span> <span class="string">host</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">TZ:</span> <span class="string">Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="B-etc-netplan-10-dhcp-all-interfaces-yaml"><a href="#B-etc-netplan-10-dhcp-all-interfaces-yaml" class="headerlink" title="B. /etc/netplan/10-dhcp-all-interfaces.yaml"></a>B. <code>/etc/netplan/10-dhcp-all-interfaces.yaml</code></h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">renderer:</span> <span class="string">networkd</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">enP1p17s0:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">accept-ra:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">addresses:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="number">192.168</span><span class="string">.*.30/24</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="number">192.168</span><span class="string">.*.1</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> [<span class="number">192.168</span><span class="string">.*.1</span>, <span class="number">223.5</span><span class="number">.5</span><span class="number">.5</span>]</span><br><span class="line">    <span class="attr">enP2p33s0:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br><span class="line">    <span class="attr">all-lan-interfaces:</span></span><br><span class="line">      <span class="attr">match:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">&quot;lan*&quot;</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br><span class="line">    <span class="attr">all-wan-interfaces:</span></span><br><span class="line">      <span class="attr">match:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">&quot;wan*&quot;</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">yes</span></span><br><span class="line">      <span class="attr">ipv6-privacy:</span> <span class="literal">yes</span></span><br><span class="line">  <span class="attr">wifis:</span></span><br><span class="line">    <span class="attr">wlp1s0:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">dhcp6:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">addresses:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="number">192.168</span><span class="string">.*.31/24</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="number">192.168</span><span class="string">.*.1</span></span><br><span class="line">          <span class="attr">metric:</span> <span class="number">200</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> [<span class="number">192.168</span><span class="string">.*.1</span>, <span class="number">223.5</span><span class="number">.5</span><span class="number">.5</span>]</span><br><span class="line">      <span class="attr">access-points:</span></span><br><span class="line">        <span class="string">&#x27;你的SSID&#x27;</span><span class="string">:</span></span><br><span class="line">          <span class="attr">password:</span> <span class="string">&#x27;********&#x27;</span></span><br><span class="line">      <span class="attr">optional:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="C-etc-docker-daemon-json"><a href="#C-etc-docker-daemon-json" class="headerlink" title="C. /etc/docker/daemon.json"></a>C. <code>/etc/docker/daemon.json</code></h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;log-driver&quot;</span><span class="punctuation">:</span> <span class="string">&quot;json-file&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;log-opts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;max-size&quot;</span><span class="punctuation">:</span> <span class="string">&quot;10m&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;max-file&quot;</span><span class="punctuation">:</span> <span class="string">&quot;3&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="D-usr-local-sbin-ha-backup-sh"><a href="#D-usr-local-sbin-ha-backup-sh" class="headerlink" title="D. /usr/local/sbin/ha-backup.sh"></a>D. <code>/usr/local/sbin/ha-backup.sh</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env bash</span></span><br><span class="line"><span class="built_in">set</span> -euo pipefail</span><br><span class="line">DEST=/var/backups/homeassistant</span><br><span class="line">KEEP_DAYS=14</span><br><span class="line">STAMP=$(<span class="built_in">date</span> +%Y%m%d-%H%M)</span><br><span class="line"><span class="built_in">cd</span> /opt/homeassistant</span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="string">&quot;<span class="variable">$DEST</span>&quot;</span></span><br><span class="line"></span><br><span class="line">docker compose stop</span><br><span class="line"><span class="keyword">if</span> ! tar --numeric-owner -czf <span class="string">&quot;<span class="variable">$DEST</span>/ha-config-<span class="variable">$STAMP</span>.tar.gz&quot;</span> config; <span class="keyword">then</span></span><br><span class="line">  docker compose start</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;tar failed&quot;</span> &gt;&amp;2</span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">docker compose start</span><br><span class="line"></span><br><span class="line">find <span class="string">&quot;<span class="variable">$DEST</span>&quot;</span> -name <span class="string">&#x27;ha-config-*.tar.gz&#x27;</span> -mtime +<span class="string">&quot;<span class="variable">$KEEP_DAYS</span>&quot;</span> -delete</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%F %T&#x27;)</span> ok: <span class="variable">$DEST</span>/ha-config-<span class="variable">$STAMP</span>.tar.gz&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="E-crontab"><a href="#E-crontab" class="headerlink" title="E. crontab"></a>E. crontab</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 4 * * 0 /usr/local/sbin/ha-backup.sh &gt;&gt; /var/log/ha-backup.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="17-参考链接"><a href="#17-参考链接" class="headerlink" title="17. 参考链接"></a>17. 参考链接</h2><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Home Assistant Container 安装文档</td>
+<td><a target="_blank" rel="noopener" href="https://www.home-assistant.io/installation/linux">https://www.home-assistant.io/installation/linux</a></td>
+</tr>
+<tr>
+<td>废弃 Core &#x2F; Supervised 的官方公告</td>
+<td><a target="_blank" rel="noopener" href="https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/">https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/</a></td>
+</tr>
+<tr>
+<td>HA Docker 镜像</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/home-assistant/home-assistant/pkgs/container/home-assistant">https://github.com/home-assistant/home-assistant/pkgs/container/home-assistant</a></td>
+</tr>
+<tr>
+<td>蓝牙集成文档</td>
+<td><a target="_blank" rel="noopener" href="https://www.home-assistant.io/integrations/bluetooth/">https://www.home-assistant.io/integrations/bluetooth/</a></td>
+</tr>
+<tr>
+<td>HACS 安装文档</td>
+<td><a target="_blank" rel="noopener" href="https://hacs.xyz/docs/use/download/download/">https://hacs.xyz/docs/use/download/download/</a></td>
+</tr>
+<tr>
+<td>Docker CE 清华镜像</td>
+<td><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/">https://mirrors.tuna.tsinghua.edu.cn/help/docker-ce/</a></td>
+</tr>
+<tr>
+<td>netplan 配置参考</td>
+<td><a target="_blank" rel="noopener" href="https://netplan.readthedocs.io/en/stable/">https://netplan.readthedocs.io/en/stable/</a></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="变更记录"><a href="#变更记录" class="headerlink" title="变更记录"></a>变更记录</h2><table>
+<thead>
+<tr>
+<th>时间</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-10-17 22:12</td>
+<td>系统更新、时区、主机名</td>
+</tr>
+<tr>
+<td>2026-10-17 22:20</td>
+<td>netplan 改静态 IP（发现网络由 netplan 管理）</td>
+</tr>
+<tr>
+<td>2026-10-17 22:35</td>
+<td>Docker 安装（官方源失败，改清华 docker-ce 源）</td>
+</tr>
+<tr>
+<td>2026-10-17 22:40</td>
+<td>HA 镜像经南大 ghcr 镜像拉取并 retag</td>
+</tr>
+<tr>
+<td>2026-10-17 22:45</td>
+<td>HA 容器启动，HTTP 302</td>
+</tr>
+<tr>
+<td>2026-10-17 22:55</td>
+<td>BlueZ 安装、cap_add 修复蓝牙权限</td>
+</tr>
+<tr>
+<td>2026-10-17 23:00</td>
+<td>蓝牙条目确认为 integration_discovery 自动创建</td>
+</tr>
+<tr>
+<td>2026-10-17 23:08</td>
+<td>备份脚本 + 每周 cron 上线</td>
+</tr>
+<tr>
+<td>2026-10-17 23:10</td>
+<td>内核三件套 hold</td>
+</tr>
+<tr>
+<td>2026-10-17 23:13</td>
+<td>HACS 安装（修正 zip 无顶层目录问题）</td>
+</tr>
+<tr>
+<td>2026-10-17 23:18</td>
+<td>WiFi 备用通道 192.168.*.31 配置完成</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>系列文章：<a href="/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/">NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录</a>（前篇）<br>记录日期：2026-10-17<br>设备：NanoPi R5C（RK3568B2 &#x2F; 4GB &#x2F; 32GB eMMC）<br>结果：✅ Home Assistant 2026.10.2 稳定运行，蓝牙可用，每周自动备份已上线</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NanoPi-R5C/" rel="tag"># NanoPi R5C</a>
+              <a href="/tags/Armbian/" rel="tag"># Armbian</a>
+              <a href="/tags/Debian-13/" rel="tag"># Debian 13</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Home-Assistant/" rel="tag"># Home Assistant</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85/" rel="tag"># 智能家居</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/17/NanoPi-R5C-Armbian-Debian13-%E5%AE%89%E8%A3%85%E5%88%B0eMMC%E5%85%A8%E8%AE%B0%E5%BD%95/" rel="prev" title="NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录">
+                  <i class="fa fa-angle-left"></i> NanoPi R5C 安装 Armbian Debian 13 并迁移到 eMMC 全记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/18/Mosquitto-MQTT-ESP32P4-HomeAssistant-%E6%8E%A5%E5%85%A5%E5%AE%9E%E5%BD%95/" rel="next" title="Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录">
+                  Mosquitto MQTT + ESP32-P4 面板接入 Home Assistant 实录 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2022 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">hechaomax</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">29k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:47</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
