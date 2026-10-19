@@ -4250,4 +4250,592 @@
         <tag>002721</tag>
       </tags>
   </entry>
+  <entry>
+    <title>组合复盘：9 只全部跌破 MA20，明日价位与处置优先级（2026-10-19）</title>
+    <url>/2026/10/19/%E7%BB%84%E5%90%88%E5%A4%8D%E7%9B%98-2026-10-19/</url>
+    <content><![CDATA[<blockquote>
+<p><strong>数据口径</strong>：行情截至 2026-10-19 收盘；目标交易日 2026-10-20；基准为沪深 300，组合按 9 只等权、起点归一为 100。<br><strong>报告日期</strong>：2026-10-19　|　<strong>货币单位</strong>：人民币</p>
+</blockquote>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>今天的组合有一组相互矛盾的读数：<strong>超额还在，纪律已经没了</strong>。</p>
+<ul>
+<li><strong>收益</strong>：区间 -6.13%，基准 -8.11%，超额 +1.99 个百分点</li>
+<li><strong>风险</strong>：年化波动 33.2%（基准 14.3%），最大回撤 -19.9%，夏普 -0.60</li>
+<li><strong>状态</strong>：9 只全部跌破 MA20，评分区间 7–37 分，全部低于 45 分破位线，可持有（60 分以上）0 只</li>
+</ul>
+<p>三个判断：</p>
+<ol>
+<li>组合 <strong>-6.13%</strong>，从 2026-09-01 高点 <strong>+17.2%</strong> 回吐 <strong>23.3 个百分点</strong>，问题不在选股，在缺少止盈&#x2F;减仓纪律；</li>
+<li>明日预判的方向准确率均值 <strong>50%</strong>，9&#x2F;9 只跑不赢「永远猜多数方向」——<strong>概率不能当方向用</strong>；</li>
+<li>真正能执行的是价位：盈亏比 ≥1.5 的只有 <strong>京东方Ａ（1.65）、铜陵有色（2.11）、皖维高新（1.63）</strong>，其余位置反弹不值得参与。</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="一、组合净值与基准"><a href="#一、组合净值与基准" class="headerlink" title="一、组合净值与基准"></a>一、组合净值与基准</h2><p><svg viewBox="0 0 860 260" width="100%" style="max-width:860px;height:auto"><line x1="52" y1="234.0" x2="784" y2="234.0" stroke="#e8eaed" stroke-width="1"/><text x="44" y="238.0" font-size="11" fill="#6b7280" text-anchor="end">88.6%</text><line x1="52" y1="179.5" x2="784" y2="179.5" stroke="#e8eaed" stroke-width="1"/><text x="44" y="183.5" font-size="11" fill="#6b7280" text-anchor="end">96.5%</text><line x1="52" y1="125.0" x2="784" y2="125.0" stroke="#e8eaed" stroke-width="1"/><text x="44" y="129.0" font-size="11" fill="#6b7280" text-anchor="end">104.4%</text><line x1="52" y1="70.5" x2="784" y2="70.5" stroke="#e8eaed" stroke-width="1"/><text x="44" y="74.5" font-size="11" fill="#6b7280" text-anchor="end">112.3%</text><line x1="52" y1="16.0" x2="784" y2="16.0" stroke="#e8eaed" stroke-width="1"/><text x="44" y="20.0" font-size="11" fill="#6b7280" text-anchor="end">120.2%</text><text x="52.0" y="252" font-size="10" fill="#6b7280" text-anchor="middle">08-03</text><text x="171.5" y="252" font-size="10" fill="#6b7280" text-anchor="middle">08-13</text><text x="291.0" y="252" font-size="10" fill="#6b7280" text-anchor="middle">08-25</text><text x="410.5" y="252" font-size="10" fill="#6b7280" text-anchor="middle">09-04</text><text x="530.0" y="252" font-size="10" fill="#6b7280" text-anchor="middle">09-16</text><text x="649.6" y="252" font-size="10" fill="#6b7280" text-anchor="middle">09-29</text><text x="769.1" y="252" font-size="10" fill="#6b7280" text-anchor="middle">10-16</text><polyline points="52.0,155.6 66.9,137.1 81.9,119.4 96.8,116.9 111.8,103.5 126.7,99.5 141.6,98.6 156.6,89.9 171.5,110.2 186.4,125.7 201.4,111.7 216.3,110.9 231.3,144.7 246.2,142.3 261.1,130.6 276.1,138.1 291.0,134.9 306.0,103.5 320.9,90.2 335.8,68.6 350.8,62.2 365.7,37.1 380.7,65.6 395.6,90.5 410.5,89.1 425.5,79.4 440.4,62.9 455.3,73.6 470.3,97.6 485.2,121.2 500.2,122.3 515.1,142.6 530.0,124.5 545.0,129.6 559.9,119.6 574.9,103.0 589.8,98.8 604.7,124.1 619.7,135.4 634.6,156.8 649.6,153.0 664.5,153.2 679.4,156.7 694.4,140.8 709.3,164.2 724.2,155.0 739.2,169.6 754.1,191.3 769.1,194.8 784.0,197.9" fill="none" stroke="#7b3fe4" stroke-width="2.2" stroke-linejoin="round"/><circle cx="784.0" cy="197.9" r="3" fill="#7b3fe4"/><text x="792.0" y="201.9" font-size="11" font-weight="600" fill="#7b3fe4">等权组合</text><polyline points="52.0,155.6 66.9,146.8 81.9,138.1 96.8,139.2 111.8,132.6 126.7,131.5 141.6,137.3 156.6,133.1 171.5,137.2 186.4,136.9 201.4,125.5 216.3,127.8 231.3,148.7 246.2,148.1 261.1,144.1 276.1,152.6 291.0,154.2 306.0,148.4 320.9,142.4 335.8,145.6 350.8,143.1 365.7,145.2 380.7,154.9 395.6,154.2 410.5,154.9 425.5,150.8 440.4,153.2 455.3,151.1 470.3,154.8 485.2,160.6 500.2,165.2 515.1,169.7 530.0,165.2 545.0,168.2 559.9,161.0 574.9,156.1 589.8,155.4 604.7,159.5 619.7,171.4 634.6,186.3 649.6,185.7 664.5,183.8 679.4,191.0 694.4,189.9 709.3,194.4 724.2,196.2 739.2,205.1 754.1,212.9 769.1,212.2 784.0,211.6" fill="none" stroke="#6b7280" stroke-width="1.6" stroke-linejoin="round"/><circle cx="784.0" cy="211.6" r="3" fill="#6b7280"/><text x="792.0" y="215.6" font-size="11" font-weight="600" fill="#6b7280">沪深300</text></svg></p>
+<p>区间最高浮盈 +17.2%（2026-09-01）→ 目前 -6.13%，回吐 23.3 个百分点。紫线为等权组合，灰线为沪深 300，起点均为 100%。</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>组合收益</td>
+<td>-6.13%</td>
+<td>等权，起点 &#x3D; 100</td>
+</tr>
+<tr>
+<td>基准同期</td>
+<td>-8.11%</td>
+<td>沪深 300</td>
+</tr>
+<tr>
+<td>超额</td>
+<td>+1.99%</td>
+<td>组合 − 基准</td>
+</tr>
+<tr>
+<td>年化波动</td>
+<td>33.2%</td>
+<td>基准 14.3%</td>
+</tr>
+<tr>
+<td>最大回撤</td>
+<td>-19.9%</td>
+<td>组合净值</td>
+</tr>
+<tr>
+<td>夏普</td>
+<td>-0.60</td>
+<td>无风险利率取 0</td>
+</tr>
+<tr>
+<td>平均相关性</td>
+<td>0.36</td>
+<td>最高：东华软件–天娱数科 0.67</td>
+</tr>
+<tr>
+<td>方向准确率</td>
+<td>50%</td>
+<td>滚动前推，基准约 50–53%</td>
+</tr>
+</tbody></table>
+<h2 id="二、持仓-×-明日"><a href="#二、持仓-×-明日" class="headerlink" title="二、持仓 × 明日"></a>二、持仓 × 明日</h2><h3 id="2-1-状态"><a href="#2-1-状态" class="headerlink" title="2.1 状态"></a>2.1 状态</h3><p>按评分升序（越弱越靠前）。</p>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>现价</th>
+<th>今日</th>
+<th>评分</th>
+<th>距MA20</th>
+<th>RSI</th>
+<th>250日回撤</th>
+<th>风险贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>金一文化（002721）</td>
+<td>2.45</td>
+<td>-1.21%</td>
+<td><strong>7</strong>（破位）</td>
+<td>-6.4%</td>
+<td>37</td>
+<td>-38.0%</td>
+<td><strong>13.2%</strong></td>
+</tr>
+<tr>
+<td>中利集团（002309）</td>
+<td>2.64</td>
+<td>+0.00%</td>
+<td><strong>14</strong>（破位）</td>
+<td>-6.8%</td>
+<td>30</td>
+<td>-49.5%</td>
+<td><strong>7.5%</strong></td>
+</tr>
+<tr>
+<td>铜陵有色（000630）</td>
+<td>5.32</td>
+<td>-1.12%</td>
+<td><strong>14</strong>（破位）</td>
+<td>-8.8%</td>
+<td>27</td>
+<td>-41.8%</td>
+<td><strong>9.1%</strong></td>
+</tr>
+<tr>
+<td>皖维高新（600063）</td>
+<td>5.05</td>
+<td>-0.20%</td>
+<td><strong>14</strong>（破位）</td>
+<td>-6.7%</td>
+<td>32</td>
+<td>-42.9%</td>
+<td><strong>6.0%</strong></td>
+</tr>
+<tr>
+<td>京东方Ａ（000725）</td>
+<td>5.06</td>
+<td>-1.36%</td>
+<td><strong>15</strong>（破位）</td>
+<td>-8.8%</td>
+<td>33</td>
+<td>-44.4%</td>
+<td><strong>7.8%</strong></td>
+</tr>
+<tr>
+<td>青山纸业（600103）</td>
+<td>3.07</td>
+<td>-1.29%</td>
+<td><strong>22</strong>（破位）</td>
+<td>-11.0%</td>
+<td>38</td>
+<td>-44.1%</td>
+<td><strong>19.4%</strong></td>
+</tr>
+<tr>
+<td>赤天化（600227）</td>
+<td>3.39</td>
+<td>-2.87%</td>
+<td><strong>22</strong>（破位）</td>
+<td>-12.1%</td>
+<td>37</td>
+<td>-35.9%</td>
+<td><strong>18.9%</strong></td>
+</tr>
+<tr>
+<td>东华软件（002065）</td>
+<td>6.38</td>
+<td>+1.27%</td>
+<td><strong>22</strong>（破位）</td>
+<td>-2.7%</td>
+<td>38</td>
+<td>-41.8%</td>
+<td><strong>4.5%</strong></td>
+</tr>
+<tr>
+<td>天娱数科（002354）</td>
+<td>7.42</td>
+<td>+2.91%</td>
+<td><strong>37</strong>（走弱）</td>
+<td>-0.9%</td>
+<td>48</td>
+<td>-28.2%</td>
+<td><strong>13.6%</strong></td>
+</tr>
+</tbody></table>
+<h3 id="2-2-明日价位"><a href="#2-2-明日价位" class="headerlink" title="2.2 明日价位"></a>2.2 明日价位</h3><p>情景列为「上攻 · 震荡 · 下探」概率，以 ±0.5×ATR 为界；价位为短线 3–10 个交易日参考。</p>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>收涨概率</th>
+<th>上攻·震荡·下探（%）</th>
+<th>止盈R1</th>
+<th>止跌S1</th>
+<th>止损</th>
+<th>盈亏比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>金一文化（002721）</td>
+<td><strong>28%</strong>（19–41%）</td>
+<td>3·78·18</td>
+<td>2.62（+6.8%）</td>
+<td>—（同止损）</td>
+<td><strong>2.22</strong>（-9.4%）</td>
+<td><strong>0.72</strong></td>
+</tr>
+<tr>
+<td>中利集团（002309）</td>
+<td><strong>48%</strong>（36–61%）</td>
+<td>22·62·17</td>
+<td>2.83（+7.3%）</td>
+<td>2.54（-3.8%）</td>
+<td><strong>2.51</strong>（-5.0%）</td>
+<td><strong>1.47</strong></td>
+</tr>
+<tr>
+<td>铜陵有色（000630）</td>
+<td><strong>47%</strong>（35–59%）</td>
+<td>17·73·10</td>
+<td>5.83（+9.6%）</td>
+<td>5.13（-3.5%）</td>
+<td><strong>5.08</strong>（-4.6%）</td>
+<td><strong>2.11</strong></td>
+</tr>
+<tr>
+<td>皖维高新（600063）</td>
+<td><strong>53%</strong>（41–65%）</td>
+<td>20·63·17</td>
+<td>5.41（+7.2%）</td>
+<td>4.88（-3.4%）</td>
+<td><strong>4.83</strong>（-4.4%）</td>
+<td><strong>1.63</strong></td>
+</tr>
+<tr>
+<td>京东方Ａ（000725）</td>
+<td><strong>42%</strong>（30–54%）</td>
+<td>13·75·12</td>
+<td>5.55（+9.7%）</td>
+<td>4.83（-4.5%）</td>
+<td><strong>4.76</strong>（-5.9%）</td>
+<td><strong>1.65</strong></td>
+</tr>
+<tr>
+<td>青山纸业（600103）</td>
+<td><strong>47%</strong>（35–59%）</td>
+<td>15·70·15</td>
+<td>3.26（+6.3%）</td>
+<td>2.40（-21.8%）</td>
+<td><strong>2.67</strong>（-13.1%）</td>
+<td><strong>0.48</strong></td>
+</tr>
+<tr>
+<td>赤天化（600227）</td>
+<td><strong>43%</strong>（32–56%）</td>
+<td>5·88·7</td>
+<td>3.83（+12.9%）</td>
+<td>2.80（-17.4%）</td>
+<td><strong>2.83</strong>（-16.4%）</td>
+<td><strong>0.78</strong></td>
+</tr>
+<tr>
+<td>东华软件（002065）</td>
+<td><strong>45%</strong>（33–58%）</td>
+<td>23·50·27</td>
+<td>6.56（+2.8%）</td>
+<td>—（同止损）</td>
+<td><strong>6.21</strong>（-2.6%）</td>
+<td><strong>1.05</strong></td>
+</tr>
+<tr>
+<td>天娱数科（002354）</td>
+<td><strong>50%</strong>（38–62%）</td>
+<td>7·80·13</td>
+<td>8.03（+8.2%）</td>
+<td>6.96（-6.2%）</td>
+<td><strong>6.82</strong>（-8.1%）</td>
+<td><strong>1.02</strong></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>风险贡献 &#x3D; 该标的造成的组合波动占比（等权基准 11.1%）。盈亏比 &#x3D; （R1 − 现价）÷（现价 − 止损），<strong>低于 1.5 的位置不做</strong>——这是过滤抢反弹的硬条件。</p>
+</blockquote>
+<h2 id="三、风险贡献分布"><a href="#三、风险贡献分布" class="headerlink" title="三、风险贡献分布"></a>三、风险贡献分布</h2><p>同样 11.1% 的仓位，贡献的风险可以相差数倍。</p>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>风险贡献</th>
+<th>自身波动</th>
+<th>区间收益</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>青山纸业</td>
+<td><strong>19.4%</strong></td>
+<td>76%</td>
+<td>+5.1%</td>
+</tr>
+<tr>
+<td>赤天化</td>
+<td><strong>18.9%</strong></td>
+<td>83%</td>
+<td>+4.0%</td>
+</tr>
+<tr>
+<td>天娱数科</td>
+<td><strong>13.6%</strong></td>
+<td>61%</td>
+<td>+3.6%</td>
+</tr>
+<tr>
+<td>金一文化</td>
+<td><strong>13.2%</strong></td>
+<td>73%</td>
+<td>-0.4%</td>
+</tr>
+<tr>
+<td>铜陵有色</td>
+<td><strong>9.1%</strong></td>
+<td>40%</td>
+<td>-14.6%</td>
+</tr>
+<tr>
+<td>京东方Ａ</td>
+<td><strong>7.8%</strong></td>
+<td>44%</td>
+<td>-6.6%</td>
+</tr>
+<tr>
+<td>中利集团</td>
+<td><strong>7.5%</strong></td>
+<td>33%</td>
+<td>-19.3%</td>
+</tr>
+<tr>
+<td>皖维高新</td>
+<td><strong>6.0%</strong></td>
+<td>27%</td>
+<td>-12.6%</td>
+</tr>
+<tr>
+<td>东华软件</td>
+<td><strong>4.5%</strong></td>
+<td>22%</td>
+<td>-14.4%</td>
+</tr>
+</tbody></table>
+<p>风险贡献 &#x3D; w·(Σw)ᵢ ÷ 组合方差，合计 100%。它衡量「组合波动里有多少是这只造成的」，与持有金额无关。青山纸业、赤天化两只贡献了 38.3% 的组合波动，自身年化波动 76% &#x2F; 83%。</p>
+<h2 id="四、逐只价位与动作"><a href="#四、逐只价位与动作" class="headerlink" title="四、逐只价位与动作"></a>四、逐只价位与动作</h2><h3 id="4-1-价位总表"><a href="#4-1-价位总表" class="headerlink" title="4.1 价位总表"></a>4.1 价位总表</h3><table>
+<thead>
+<tr>
+<th>标的</th>
+<th>止盈 R1</th>
+<th>止盈 R2</th>
+<th>止跌 S1</th>
+<th>止跌 S2</th>
+<th>短线止损</th>
+<th>转强触发</th>
+<th>盈亏比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>金一文化</td>
+<td><strong>2.62</strong></td>
+<td>2.68</td>
+<td><strong>2.22</strong></td>
+<td>2.14</td>
+<td><strong>2.22</strong></td>
+<td>2.62</td>
+<td>0.72</td>
+</tr>
+<tr>
+<td>中利集团</td>
+<td><strong>2.83</strong></td>
+<td>3.01</td>
+<td><strong>2.54</strong></td>
+<td>2.49</td>
+<td><strong>2.51</strong></td>
+<td>2.83</td>
+<td>1.47</td>
+</tr>
+<tr>
+<td>铜陵有色</td>
+<td><strong>5.83</strong></td>
+<td>6.22</td>
+<td><strong>5.13</strong></td>
+<td>5.04</td>
+<td><strong>5.08</strong></td>
+<td>5.83</td>
+<td>2.11</td>
+</tr>
+<tr>
+<td>皖维高新</td>
+<td><strong>5.41</strong></td>
+<td>5.60</td>
+<td><strong>4.88</strong></td>
+<td>4.79</td>
+<td><strong>4.83</strong></td>
+<td>5.41</td>
+<td>1.63</td>
+</tr>
+<tr>
+<td>京东方Ａ</td>
+<td><strong>5.55</strong></td>
+<td>5.73</td>
+<td><strong>4.83</strong></td>
+<td>4.72</td>
+<td><strong>4.76</strong></td>
+<td>5.55</td>
+<td>1.65</td>
+</tr>
+<tr>
+<td>青山纸业</td>
+<td><strong>3.26</strong></td>
+<td>3.45</td>
+<td><strong>2.40</strong></td>
+<td>2.30</td>
+<td><strong>2.67</strong></td>
+<td>3.45</td>
+<td>0.48</td>
+</tr>
+<tr>
+<td>赤天化</td>
+<td><strong>3.83</strong></td>
+<td>4.16</td>
+<td><strong>2.80</strong></td>
+<td>2.66</td>
+<td><strong>2.83</strong></td>
+<td>3.85</td>
+<td>0.78</td>
+</tr>
+<tr>
+<td>东华软件</td>
+<td><strong>6.56</strong></td>
+<td>6.64</td>
+<td><strong>6.21</strong></td>
+<td>6.18</td>
+<td><strong>6.21</strong></td>
+<td>6.56</td>
+<td>1.05</td>
+</tr>
+<tr>
+<td>天娱数科</td>
+<td><strong>8.03</strong></td>
+<td>8.27</td>
+<td><strong>6.96</strong></td>
+<td>6.81</td>
+<td><strong>6.82</strong></td>
+<td>7.49</td>
+<td>1.02</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-金一文化"><a href="#4-2-金一文化" class="headerlink" title="4.2 金一文化"></a>4.2 金一文化</h3><p><strong>002721</strong>　·　收盘 2.45（-1.21%）· 评分 7</p>
+<blockquote>
+<p>上攻 3%（中枢 2.52）· 震荡 78%（2.40–2.46）· 下探 18%（中枢 2.38） ｜ 80% 区间 2.38–2.49</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>2.62</strong>（+6.8%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：第一支撑与 2×ATR 止损重合于 <strong>2.22</strong>（-9.4%），跌破即一次清掉，不做分批减仓</li>
+<li>做反弹：在 <strong>2.22</strong> 上方才有意义，第一目标 <strong>2.62</strong>（+6.8%），到 R2 <strong>2.68</strong> 全部了结</li>
+<li>盈亏比只有 <strong>0.72</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h3 id="4-3-中利集团"><a href="#4-3-中利集团" class="headerlink" title="4.3 中利集团"></a>4.3 中利集团</h3><p><strong>002309</strong>　·　收盘 2.64（+0.00%）· 评分 14</p>
+<blockquote>
+<p>上攻 22%（中枢 2.70）· 震荡 62%（2.62–2.67）· 下探 17%（中枢 2.58） ｜ 80% 区间 2.58–2.70</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>2.83</strong>（+7.3%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：跌破止跌价 <strong>2.54</strong> 减半仓，跌破短线止损 <strong>2.51</strong>（-5.0%）清掉剩余</li>
+<li>做反弹：在 2.54–2.56 区间分批，第一目标 <strong>2.83</strong>（+7.3%）减三分之一，第二目标 <strong>3.01</strong>（+14.2%）全部了结</li>
+<li>盈亏比只有 <strong>1.47</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h3 id="4-4-铜陵有色"><a href="#4-4-铜陵有色" class="headerlink" title="4.4 铜陵有色"></a>4.4 铜陵有色</h3><p><strong>000630</strong>　·　收盘 5.32（-1.12%）· 评分 14</p>
+<blockquote>
+<p>上攻 17%（中枢 5.52）· 震荡 73%（5.26–5.39）· 下探 10%（中枢 5.16） ｜ 80% 区间 5.23–5.48</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>5.83</strong>（+9.6%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：跌破止跌价 <strong>5.13</strong> 减半仓，跌破短线止损 <strong>5.08</strong>（-4.6%）清掉剩余</li>
+<li>做反弹：在 5.13–5.19 区间分批，第一目标 <strong>5.83</strong>（+9.6%）减三分之一，第二目标 <strong>6.22</strong>（+16.9%）全部了结</li>
+</ul>
+<h3 id="4-5-皖维高新"><a href="#4-5-皖维高新" class="headerlink" title="4.5 皖维高新"></a>4.5 皖维高新</h3><p><strong>600063</strong>　·　收盘 5.05（-0.20%）· 评分 14</p>
+<blockquote>
+<p>上攻 20%（中枢 5.23）· 震荡 63%（5.01–5.12）· 下探 17%（中枢 4.94） ｜ 80% 区间 4.95–5.22</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>5.41</strong>（+7.2%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：跌破止跌价 <strong>4.88</strong> 减半仓，跌破短线止损 <strong>4.83</strong>（-4.4%）清掉剩余</li>
+<li>做反弹：在 4.88–4.93 区间分批，第一目标 <strong>5.41</strong>（+7.2%）减三分之一，第二目标 <strong>5.60</strong>（+10.9%）全部了结</li>
+</ul>
+<h3 id="4-6-京东方A"><a href="#4-6-京东方A" class="headerlink" title="4.6 京东方Ａ"></a>4.6 京东方Ａ</h3><p><strong>000725</strong>　·　收盘 5.06（-1.36%）· 评分 15</p>
+<blockquote>
+<p>上攻 13%（中枢 5.23）· 震荡 75%（5.02–5.10）· 下探 12%（中枢 4.91） ｜ 80% 区间 4.94–5.19</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>5.55</strong>（+9.7%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：跌破止跌价 <strong>4.83</strong> 减半仓，跌破短线止损 <strong>4.76</strong>（-5.9%）清掉剩余</li>
+<li>做反弹：在 4.83–4.88 区间分批，第一目标 <strong>5.55</strong>（+9.7%）减三分之一，第二目标 <strong>5.73</strong>（+13.2%）全部了结</li>
+</ul>
+<h3 id="4-7-青山纸业"><a href="#4-7-青山纸业" class="headerlink" title="4.7 青山纸业"></a>4.7 青山纸业</h3><p><strong>600103</strong>　·　收盘 3.07（-1.29%）· 评分 22</p>
+<blockquote>
+<p>上攻 15%（中枢 3.23）· 震荡 70%（3.01–3.15）· 下探 15%（中枢 2.94） ｜ 80% 区间 2.95–3.20</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>3.45</strong>（+12.4%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：最近支撑 2.40 已在 2×ATR 止损 <strong>2.67</strong>（-13.1%）之下，实际会先触发止损——跌破 <strong>2.67</strong> 直接离场，不要等 S1</li>
+<li>做反弹：近端没有可倚靠的支撑（S1 距现价 -21.8%），不在下跌途中接。等收盘收复 <strong>3.45</strong> 再评估</li>
+<li>盈亏比只有 <strong>0.48</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h3 id="4-8-赤天化"><a href="#4-8-赤天化" class="headerlink" title="4.8 赤天化"></a>4.8 赤天化</h3><p><strong>600227</strong>　·　收盘 3.39（-2.87%）· 评分 22</p>
+<blockquote>
+<p>上攻 5%（中枢 3.57）· 震荡 88%（3.33–3.42）· 下探 7%（中枢 3.20） ｜ 80% 区间 3.26–3.46</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>3.85</strong>（+13.7%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：最近支撑 2.80 已在 2×ATR 止损 <strong>2.83</strong>（-16.4%）之下，实际会先触发止损——跌破 <strong>2.83</strong> 直接离场，不要等 S1</li>
+<li>做反弹：近端没有可倚靠的支撑（S1 距现价 -17.4%），不在下跌途中接。等收盘收复 <strong>3.85</strong> 再评估</li>
+<li>盈亏比只有 <strong>0.78</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h3 id="4-9-东华软件"><a href="#4-9-东华软件" class="headerlink" title="4.9 东华软件"></a>4.9 东华软件</h3><p><strong>002065</strong>　·　收盘 6.38（+1.27%）· 评分 22</p>
+<blockquote>
+<p>上攻 23%（中枢 6.49）· 震荡 50%（6.30–6.46）· 下探 27%（中枢 6.27） ｜ 80% 区间 6.25–6.50</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>6.56</strong>（+2.8%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：第一支撑与 2×ATR 止损重合于 <strong>6.21</strong>（-2.6%），跌破即一次清掉，不做分批减仓</li>
+<li>做反弹：在 <strong>6.21</strong> 上方才有意义，第一目标 <strong>6.56</strong>（+2.8%），到 R2 <strong>6.64</strong> 全部了结</li>
+<li>盈亏比只有 <strong>1.05</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h3 id="4-10-天娱数科"><a href="#4-10-天娱数科" class="headerlink" title="4.10 天娱数科"></a>4.10 天娱数科</h3><p><strong>002354</strong>　·　收盘 7.42（+2.91%）· 评分 37</p>
+<blockquote>
+<p>上攻 7%（中枢 7.83）· 震荡 80%（7.26–7.54）· 下探 13%（中枢 7.08） ｜ 80% 区间 7.12–7.64</p>
+</blockquote>
+<ul>
+<li>现价在 MA20 下方，反弹不追。收复 <strong>7.49</strong>（+1.0%）且成交额放大到 20 日均量 1.5 倍，才谈轻仓试单</li>
+<li>持仓者：跌破止跌价 <strong>6.96</strong> 减半仓，跌破短线止损 <strong>6.82</strong>（-8.1%）清掉剩余</li>
+<li>做反弹：在 6.96–7.03 区间分批，第一目标 <strong>8.03</strong>（+8.2%）减三分之一，第二目标 <strong>8.27</strong>（+11.5%）全部了结</li>
+<li>盈亏比只有 <strong>1.02</strong>（每承担 1 元风险赚不到 1.5 元），这个位置的反弹<strong>不值得参与</strong>——等价格回到 S1 附近或 R1 被收复再看</li>
+</ul>
+<h2 id="五、组合层面的判断"><a href="#五、组合层面的判断" class="headerlink" title="五、组合层面的判断"></a>五、组合层面的判断</h2><ul>
+<li>**状态同质，波动不同质。**9 只全部跌破 MA20、RSI 落在弱势区、距 250 日高点回撤均超 30%——下跌方向一致；但平均相关性仅 0.36，日间波动并不同步，分散化仍在起作用。</li>
+<li>**风险承担与收益不匹配。**组合年化波动 33.2%，是基准 14.3% 的 2.3 倍，但区间超额只有 +1.99%——单位风险的回报低于直接买指数。</li>
+<li>**先处理谁。**金一文化、中利集团、皖维高新 触发条件最明确。</li>
+<li>**择时不适用。**策略体检结论：单笔依赖 5 只、样本不足 2 只、短窗失真 2 只，没有任何一只通过稳定性检验。评分的用途是描述持仓状态，不是给买卖点；真正可用的只有「跌破 MA20 减仓」这条纪律。</li>
+</ul>
+<p>处置优先级：</p>
+<ul>
+<li><strong>金一文化</strong>（002721）：评分 7 分处破位区，盈亏比仅 0.72</li>
+<li><strong>中利集团</strong>（002309）：评分 14 分处破位区，距 250 日高点 -50%</li>
+<li><strong>皖维高新</strong>（600063）：评分 14 分处破位区，距 250 日高点 -43%</li>
+</ul>
+<h2 id="六、方法与局限"><a href="#六、方法与局限" class="headerlink" title="六、方法与局限"></a>六、方法与局限</h2><ul>
+<li>等权假设未考虑实际持仓成本与股数，若真实权重偏离等权，风险贡献需重算；</li>
+<li>明日概率来自「历史相似状态下的次日收益频率」（7 维特征 KNN，K&#x3D;60），训练集严格截断在预测日之前，已做 9 只标的的滚动前推检验，结果见上表「方向准确率」；</li>
+<li>未纳入消息面、龙虎榜、大宗交易、融资余额、板块联动——这些恰恰是次日波动的主要来源；</li>
+<li>未扣印花税（卖出 0.05%）、佣金与滑点；涨跌停价未识别 ST 与新股；下一交易日未扣法定节假日；</li>
+<li>评分阈值、权重、K 值均为固定参数，未做样本外滚动优化，存在过拟合风险；</li>
+<li>本报告仅供研究参考，不构成个人投资建议。</li>
+</ul>
+<h2 id="七、资料来源"><a href="#七、资料来源" class="headerlink" title="七、资料来源"></a>七、资料来源</h2><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>行情数据</td>
+<td>腾讯证券（TMR-100 口径）</td>
+</tr>
+<tr>
+<td>基准</td>
+<td>沪深 300</td>
+</tr>
+<tr>
+<td>组合统计</td>
+<td>等权买入持有，起点 2026-08-03 归一为 100</td>
+</tr>
+</tbody></table>
+<hr>
+<p><em>本文为量化复盘记录，仅供研究参考，不构成个人投资建议。</em></p>
+]]></content>
+      <categories>
+        <category>股票</category>
+        <category>每日复盘</category>
+      </categories>
+      <tags>
+        <tag>股票</tag>
+        <tag>组合复盘</tag>
+        <tag>沪深300</tag>
+        <tag>止盈止损</tag>
+        <tag>风险贡献</tag>
+        <tag>相关性</tag>
+        <tag>技术面</tag>
+      </tags>
+  </entry>
 </search>
